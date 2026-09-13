@@ -10,7 +10,7 @@ export default function Footer() {
   useEffect(() => {
     getSettings()
       .then((res) => setSettings(res.data.data))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const currentYear = new Date().getFullYear();
@@ -86,6 +86,18 @@ export default function Footer() {
       <div className="footer__bottom">
         <div className="container footer__bottom-inner">
           <p>© {currentYear} Luxurybyire. All rights reserved.</p>
+          <p className="footer__credit">
+            Built with <span className="footer__heart" role="img" aria-label="love">❤️</span> by{' '}
+            <a
+              href="https://wa.me/2349133912973"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer__credit-link"
+              title="Your turn — let Adeks build it"
+            >
+              Adeks
+            </a>
+          </p>
           <div className="footer__legal">
             <a href="#privacy" className="footer__legal-link">Privacy Policy</a>
             <a href="#terms" className="footer__legal-link">Terms of Service</a>

@@ -122,6 +122,51 @@ a.footer__contact-item:hover {
   padding-bottom: var(--space-5);
   font-size: var(--text-xs);
   color: hsl(210, 10%, 45%);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.footer__credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: hsl(210, 12%, 65%);
+  font-size: var(--text-xs);
+}
+
+.footer__heart {
+  display: inline-block;
+  margin: 0 1px;
+  animation: footerHeartPulse 1.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes footerHeartPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.22);
+  }
+}
+
+.footer__credit-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: var(--weight-semibold);
+  transition: all var(--transition-fast);
+  padding: 1px 7px;
+  border-radius: var(--radius-sm, 4px);
+  background: hsla(43, 74%, 49%, 0.1);
+  border: 1px solid hsla(43, 74%, 49%, 0.28);
+}
+
+.footer__credit-link:hover {
+  background: var(--color-accent);
+  color: hsl(215, 50%, 10%);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 10px rgba(212, 160, 23, 0.4);
+  transform: translateY(-1px);
 }
 
 .footer__legal {
