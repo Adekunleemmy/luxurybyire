@@ -4,35 +4,39 @@ const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('luxurybyire_theme');
-    if (saved) return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    try {
+      const saved = localStorage.getItem('luxurybyire_theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch {}
+    // First time loading always defaults to light mode
+    return 'light';
   });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('luxurybyire_theme', theme);
   }, [theme]);
 
-  // Listen for system preference changes
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e) => {
-      const saved = localStorage.getItem('luxurybyire_theme');
-      if (!saved) {
-        setTheme(e.matches ? 'dark' : 'light');
-      }
-    };
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    setTheme((prev) => {
+      const nextTheme = prev === 'light' ? 'dark' : 'light';
+      try {
+        localStorage.setItem('luxurybyire_theme', nextTheme);
+      } catch {}
+      return nextTheme;
+    });
+  };
+
+  const setSpecificTheme = (newTheme) => {
+    if (newTheme === 'dark' || newTheme === 'light') {
+      try {
+        localStorage.setItem('luxurybyire_theme', newTheme);
+      } catch {}
+      setTheme(newTheme);
+    }
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: setSpecificTheme }}>
       {children}
     </ThemeContext.Provider>
   );
