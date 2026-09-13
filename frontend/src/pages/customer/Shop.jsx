@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { getProducts, getCategories, getBrands } from '../../services/api';
 import ProductCard from '../../components/product/ProductCard';
+import ProductModal from '../../components/product/ProductModal';
 import { useDebounce, useMediaQuery, useScrollLock } from '../../hooks/useCommon';
 import { formatPrice } from '../../utils/helpers';
 import '../../components/product/ProductCard.css';
@@ -32,6 +33,7 @@ export default function Shop() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [collapsedGroups, setCollapsedGroups] = useState({});
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const toggleGroup = (groupKey) => {
     setCollapsedGroups((prev) => ({
@@ -544,7 +546,11 @@ export default function Shop() {
                 <>
                   <div className="product-grid">
                     {products.map((product) => (
-                      <ProductCard key={product.id} product={product} />
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        onProductClick={(p) => setSelectedProduct(p)}
+                      />
                     ))}
                   </div>
 
@@ -594,6 +600,14 @@ export default function Shop() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Product Quick View Pop-up Modal */}
+        {selectedProduct && (
+          <ProductModal
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+          />
         )}
       </div>
     </>

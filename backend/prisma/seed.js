@@ -63,18 +63,18 @@ async function main() {
 
   // ─── 2. Create Categories ─────────────────────────────
   const categoryData = [
-    { name: 'Sneakers', slug: 'sneakers', description: 'Premium sneakers from top brands' },
-    { name: 'Casual', slug: 'casual', description: 'Comfortable everyday casual footwear' },
-    { name: 'Formal', slug: 'formal', description: 'Elegant formal shoes for every occasion' },
-    { name: 'Sandals', slug: 'sandals', description: 'Stylish sandals and slides' },
-    { name: 'Boots', slug: 'boots', description: 'Premium boots for all seasons' },
+    { name: 'Sneakers', slug: 'sneakers', description: 'Premium sneakers from top brands', image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300618/luxurybyire/products/h85odjrixkmkbhnnmund.jpg' },
+    { name: 'Casual', slug: 'casual', description: 'Comfortable everyday casual footwear', image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300630/luxurybyire/products/x545rjjhxmbza6fxgouw.jpg' },
+    { name: 'Formal', slug: 'formal', description: 'Elegant formal shoes for every occasion', image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300641/luxurybyire/products/vf2xdvcc2ljpmmmrjerf.jpg' },
+    { name: 'Sandals', slug: 'sandals', description: 'Stylish sandals and slides', image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300643/luxurybyire/products/qdrh78yqw8xwre4w8z3g.jpg' },
+    { name: 'Boots', slug: 'boots', description: 'Premium boots for all seasons', image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300647/luxurybyire/products/bko8lmdqnee9r2n4cthy.jpg' },
   ];
 
   const categories = {};
   for (const cat of categoryData) {
     const category = await prisma.category.upsert({
       where: { slug: cat.slug },
-      update: {},
+      update: { image: cat.image, description: cat.description },
       create: cat,
     });
     categories[cat.slug] = category;

@@ -2,15 +2,31 @@ import { Link } from 'react-router-dom';
 import { formatPrice, calcDiscount, getOptimizedImageUrl } from '../../utils/helpers';
 import './ProductCard.css';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, onProductClick }) {
   const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
   const imageUrl = getOptimizedImageUrl(primaryImage?.url, 600) || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=60';
   const discount = calcDiscount(product.price, product.previousPrice);
   const outOfStock = product.stockQuantity === 0;
 
+  const handleClick = (e) => {
+    if (onProductClick) {
+      // Allow user to open in new tab with Cmd/Ctrl/Shift/middle-click
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
+        return;
+      }
+      e.preventDefault();
+      onProductClick(product);
+    }
+  };
+
   return (
     <article className={`product-card ${outOfStock ? 'product-card--out' : ''}`}>
-      <Link to={`/product/${product.slug}`} className="product-card__link" aria-label={`View ${product.name}`}>
+      <Link
+        to={`/product/${product.slug}`}
+        onClick={handleClick}
+        className="product-card__link"
+        aria-label={`View ${product.name}`}
+      >
         {/* Image */}
         <div className="product-card__image-wrap">
           <img
