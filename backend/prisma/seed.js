@@ -11,34 +11,33 @@ dotenv.config({ path: join(__dirname, '../.env') });
 
 const prisma = new PrismaClient();
 
-// ─── Demo Product Image URLs (Unsplash - free to use) ────
+// ─── Demo Product Image URLs (Cloudinary) ───────────────────
 const demoImages = {
   sneakers: [
-    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80',
-    'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&q=80',
-    'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&q=80',
-    'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80',
-    'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800&q=80',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300618/luxurybyire/products/h85odjrixkmkbhnnmund.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300620/luxurybyire/products/r7ex13oumknhhnaxucfz.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300622/luxurybyire/products/pbtza6j0lxceexo9srlp.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300624/luxurybyire/products/jbr0uya5fgzuvt1hib35.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300625/luxurybyire/products/kklqkiftmeric5zumn9h.jpg',
   ],
   casual: [
-    'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=800&q=80',
-    'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=800&q=80',
-    'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800&q=80',
-    'https://images.unsplash.com/photo-1539185441755-769473a23570?w=800&q=80',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300627/luxurybyire/products/ctd5dnqbqzg4vvnoyj4e.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300630/luxurybyire/products/x545rjjhxmbza6fxgouw.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300633/luxurybyire/products/vcl0vsw2ipecsc6hnmgb.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300635/luxurybyire/products/hjva2mtooxdav4igjy0m.jpg',
   ],
   formal: [
-    'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=800&q=80',
-    'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=800&q=80',
-    'https://images.unsplash.com/photo-1449505278894-297fdb3edbc1?w=800&q=80',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300637/luxurybyire/products/jdvc39h2v52yi2qks6zc.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300638/luxurybyire/products/b0wn7mebfhoyks2rvgjz.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300641/luxurybyire/products/vf2xdvcc2ljpmmmrjerf.jpg',
   ],
   sandals: [
-    'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=800&q=80',
-    'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=800&q=80',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300643/luxurybyire/products/qdrh78yqw8xwre4w8z3g.jpg',
   ],
   boots: [
-    'https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=800&q=80',
-    'https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=800&q=80',
-    'https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=800&q=80',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300645/luxurybyire/products/lwuhqk3jbi5dyczob79n.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300647/luxurybyire/products/bko8lmdqnee9r2n4cthy.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300649/luxurybyire/products/dm394iipcuwtkwjxeq10.jpg',
   ],
 };
 

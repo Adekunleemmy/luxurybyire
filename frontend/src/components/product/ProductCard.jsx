@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { formatPrice, calcDiscount } from '../../utils/helpers';
+import { formatPrice, calcDiscount, getOptimizedImageUrl } from '../../utils/helpers';
 import './ProductCard.css';
 
 export default function ProductCard({ product }) {
   const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
+  const imageUrl = getOptimizedImageUrl(primaryImage?.url, 600) || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=60';
   const discount = calcDiscount(product.price, product.previousPrice);
   const outOfStock = product.stockQuantity === 0;
 
@@ -13,7 +14,7 @@ export default function ProductCard({ product }) {
         {/* Image */}
         <div className="product-card__image-wrap">
           <img
-            src={primaryImage?.url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=60'}
+            src={imageUrl}
             alt={product.name}
             className="product-card__image"
             loading="lazy"

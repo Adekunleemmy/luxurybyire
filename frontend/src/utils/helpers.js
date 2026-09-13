@@ -115,3 +115,18 @@ export const getErrorMessage = (error) => {
   if (error.message === 'Network Error') return 'Unable to connect to server. Please check your connection.';
   return 'Something went wrong. Please try again.';
 };
+
+/**
+ * Format image URL with Cloudinary optimization transformations if applicable.
+ */
+export const getOptimizedImageUrl = (url, width = 800) => {
+  if (!url) return '';
+  if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+    if (url.includes('/upload/f_auto') || url.includes('/upload/w_') || url.includes('/upload/c_')) {
+      return url;
+    }
+    return url.replace('/upload/', `/upload/f_auto,q_auto,w_${width},c_limit/`);
+  }
+  return url;
+};
+

@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { ShoppingBag, Minus, Plus, ChevronRight, AlertCircle } from 'lucide-react';
 import { getProduct } from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
-import { formatPrice, calcDiscount, getGenderLabel } from '../../utils/helpers';
+import { formatPrice, calcDiscount, getGenderLabel, getOptimizedImageUrl } from '../../utils/helpers';
 import ProductCard from '../../components/product/ProductCard';
 import '../../components/product/ProductCard.css';
 import './ProductDetail.css';
@@ -127,7 +127,7 @@ export default function ProductDetail() {
           <div className="pdp-gallery">
             <div className="pdp-gallery__main">
               <img
-                src={images[selectedImage]?.url}
+                src={getOptimizedImageUrl(images[selectedImage]?.url, 1000)}
                 alt={product.name}
                 className="pdp-gallery__image"
               />
@@ -144,7 +144,7 @@ export default function ProductDetail() {
                     onClick={() => setSelectedImage(idx)}
                     aria-label={`View image ${idx + 1}`}
                   >
-                    <img src={img.url} alt="" />
+                    <img src={getOptimizedImageUrl(img.url, 160)} alt="" />
                   </button>
                 ))}
               </div>
