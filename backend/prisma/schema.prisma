@@ -1,0 +1,192 @@
+// Luxurybyire — Prisma Schema
+// PostgreSQL database schema for the e-commerce platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Admin Authentication ─────────────────────────────────
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+// ─── Product Catalogue ────────────────────────────────────
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  image       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@index([slug])
+  @@map("categories")
+}
+
+model Product {
+  id            String          @id @default(cuid())
+  name          String
+  slug          String          @unique
+  brand         String
+  description   String
+  price         Float
+  previousPrice Float?
+  gender        Gender          @default(UNISEX)
+  stockQuantity Int             @default(0)
+  isFeatured    Boolean         @default(false)
+  isNewArrival  Boolean         @default(false)
+  isSale        Boolean         @default(false)
+  isAvailable   Boolean         @default(true)
+  categoryId    String
+  category      Category        @relation(fields: [categoryId], references: [id])
+  images        ProductImage[]
+  sizes         ProductSize[]
+  colours       ProductColour[]
+  orderItems    OrderItem[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([slug])
+  @@index([brand])
+  @@index([categoryId])
+  @@index([isAvailable])
+  @@index([isFeatured])
+  @@index([isNewArrival])
+  @@index([isSale])
+  @@index([gender])
+  @@index([price])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  publicId  String?
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+model ProductSize {
+  id        String  @id @default(cuid())
+  size      String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, size])
+  @@map("product_sizes")
+}
+
+model ProductColour {
+  id        String  @id @default(cuid())
+  colour    String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, colour])
+  @@map("product_colours")
+}
+
+// ─── Orders ───────────────────────────────────────────────
+
+model Order {
+  id               String      @id @default(cuid())
+  reference        String      @unique
+  customerName     String
+  customerPhone    String
+  deliveryLocation String
+  deliveryFee      Float
+  subtotal         Float
+  total            Float
+  note             String?
+  status           OrderStatus @default(PENDING)
+  items            OrderItem[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([reference])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  productName String
+  brand       String
+  size        String?
+  colour      String?
+  quantity    Int
+  price       Float
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// ─── Business Configuration ──────────────────────────────
+
+model BusinessSettings {
+  id             String   @id @default("singleton")
+  businessName   String   @default("Luxurybyire")
+  whatsappNumber String   @default("")
+  phone          String   @default("")
+  email          String   @default("")
+  address        String   @default("")
+  instagramUrl   String   @default("")
+  tiktokUrl      String   @default("")
+  facebookUrl    String   @default("")
+  updatedAt      DateTime @updatedAt
+
+  @@map("business_settings")
+}
+
+model DeliveryZone {
+  id          String @id @default(cuid())
+  name        String @unique
+  fee         Float
+  description String @default("")
+  sortOrder   Int    @default(0)
+
+  @@map("delivery_zones")
+}
+
+// ─── Enums ────────────────────────────────────────────────
+
+enum Gender {
+  MEN
+  WOMEN
+  UNISEX
+}
+
+enum OrderStatus {
+  PENDING
+  CONTACTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
