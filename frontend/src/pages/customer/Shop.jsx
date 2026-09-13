@@ -30,6 +30,15 @@ export default function Shop() {
   const [brandsList, setBrandsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [collapsedGroups, setCollapsedGroups] = useState({});
+
+  const toggleGroup = (groupKey) => {
+    setCollapsedGroups((prev) => ({
+      ...prev,
+      [groupKey]: !prev[groupKey],
+    }));
+  };
 
   useScrollLock(filterOpen && isMobile);
 
@@ -132,135 +141,250 @@ export default function Shop() {
   }
   if (filters.search) pageTitle = `Search: "${filters.search}"`;
 
+  const hasActiveCategory = Boolean(filters.category);
+  const hasActiveBrand = Boolean(filters.brand);
+  const hasActiveGender = Boolean(filters.gender);
+  const hasActiveSize = Boolean(filters.size);
+  const hasActivePrice = Boolean(filters.minPrice || filters.maxPrice);
+  const hasActiveQuick = Boolean(filters.inStock || filters.isSale || filters.isNewArrival);
+
   const FilterContent = () => (
     <div className="shop-filters__body">
       {/* Category */}
       <div className="filter-group">
-        <h4 className="filter-group__title">Category</h4>
-        <div className="filter-group__options">
-          <button
-            className={`filter-option ${!filters.category ? 'filter-option--active' : ''}`}
-            onClick={() => updateFilter('category', '')}
-          >
-            All
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              className={`filter-option ${filters.category === cat.slug ? 'filter-option--active' : ''}`}
-              onClick={() => updateFilter('category', cat.slug)}
-            >
-              {cat.name}
-              <span className="filter-option__count">{cat._count?.products}</span>
-            </button>
-          ))}
+        <button
+          type="button"
+          className="filter-group__header"
+          onClick={() => toggleGroup('category')}
+          aria-expanded={!collapsedGroups.category}
+        >
+          <div className="filter-group__title-wrapper">
+            <span className="filter-group__title">Category</span>
+            {hasActiveCategory && <span className="filter-group__badge" />}
+          </div>
+          <ChevronDown
+            size={16}
+            className={`filter-group__icon ${collapsedGroups.category ? 'filter-group__icon--collapsed' : ''}`}
+          />
+        </button>
+        <div className={`filter-group__content ${collapsedGroups.category ? 'filter-group__content--collapsed' : ''}`}>
+          <div className="filter-group__content-inner">
+            <div className="filter-group__options">
+              <button
+                className={`filter-option ${!filters.category ? 'filter-option--active' : ''}`}
+                onClick={() => updateFilter('category', '')}
+              >
+                All
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  className={`filter-option ${filters.category === cat.slug ? 'filter-option--active' : ''}`}
+                  onClick={() => updateFilter('category', cat.slug)}
+                >
+                  {cat.name}
+                  <span className="filter-option__count">{cat._count?.products}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Brand */}
       <div className="filter-group">
-        <h4 className="filter-group__title">Brand</h4>
-        <div className="filter-group__options">
-          <button
-            className={`filter-option ${!filters.brand ? 'filter-option--active' : ''}`}
-            onClick={() => updateFilter('brand', '')}
-          >
-            All Brands
-          </button>
-          {brandsList.map((brand) => (
-            <button
-              key={brand}
-              className={`filter-option ${filters.brand === brand ? 'filter-option--active' : ''}`}
-              onClick={() => updateFilter('brand', brand)}
-            >
-              {brand}
-            </button>
-          ))}
+        <button
+          type="button"
+          className="filter-group__header"
+          onClick={() => toggleGroup('brand')}
+          aria-expanded={!collapsedGroups.brand}
+        >
+          <div className="filter-group__title-wrapper">
+            <span className="filter-group__title">Brand</span>
+            {hasActiveBrand && <span className="filter-group__badge" />}
+          </div>
+          <ChevronDown
+            size={16}
+            className={`filter-group__icon ${collapsedGroups.brand ? 'filter-group__icon--collapsed' : ''}`}
+          />
+        </button>
+        <div className={`filter-group__content ${collapsedGroups.brand ? 'filter-group__content--collapsed' : ''}`}>
+          <div className="filter-group__content-inner">
+            <div className="filter-group__options">
+              <button
+                className={`filter-option ${!filters.brand ? 'filter-option--active' : ''}`}
+                onClick={() => updateFilter('brand', '')}
+              >
+                All Brands
+              </button>
+              {brandsList.map((brand) => (
+                <button
+                  key={brand}
+                  className={`filter-option ${filters.brand === brand ? 'filter-option--active' : ''}`}
+                  onClick={() => updateFilter('brand', brand)}
+                >
+                  {brand}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Gender */}
       <div className="filter-group">
-        <h4 className="filter-group__title">Gender</h4>
-        <div className="filter-group__options filter-group__options--row">
-          <button
-            className={`filter-option ${!filters.gender ? 'filter-option--active' : ''}`}
-            onClick={() => updateFilter('gender', '')}
-          >
-            All
-          </button>
-          {GENDER_OPTIONS.map((g) => (
-            <button
-              key={g}
-              className={`filter-option ${filters.gender?.toLowerCase() === g.toLowerCase() ? 'filter-option--active' : ''}`}
-              onClick={() => updateFilter('gender', g)}
-            >
-              {g}
-            </button>
-          ))}
+        <button
+          type="button"
+          className="filter-group__header"
+          onClick={() => toggleGroup('gender')}
+          aria-expanded={!collapsedGroups.gender}
+        >
+          <div className="filter-group__title-wrapper">
+            <span className="filter-group__title">Gender</span>
+            {hasActiveGender && <span className="filter-group__badge" />}
+          </div>
+          <ChevronDown
+            size={16}
+            className={`filter-group__icon ${collapsedGroups.gender ? 'filter-group__icon--collapsed' : ''}`}
+          />
+        </button>
+        <div className={`filter-group__content ${collapsedGroups.gender ? 'filter-group__content--collapsed' : ''}`}>
+          <div className="filter-group__content-inner">
+            <div className="filter-group__options filter-group__options--row">
+              <button
+                className={`filter-option ${!filters.gender ? 'filter-option--active' : ''}`}
+                onClick={() => updateFilter('gender', '')}
+              >
+                All
+              </button>
+              {GENDER_OPTIONS.map((g) => (
+                <button
+                  key={g}
+                  className={`filter-option ${filters.gender?.toLowerCase() === g.toLowerCase() ? 'filter-option--active' : ''}`}
+                  onClick={() => updateFilter('gender', g)}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Size */}
       <div className="filter-group">
-        <h4 className="filter-group__title">Size</h4>
-        <div className="filter-group__options filter-group__options--sizes">
-          {SIZE_OPTIONS.map((s) => (
-            <button
-              key={s}
-              className={`filter-size-btn ${filters.size === s ? 'filter-size-btn--active' : ''}`}
-              onClick={() => updateFilter('size', filters.size === s ? '' : s)}
-            >
-              {s}
-            </button>
-          ))}
+        <button
+          type="button"
+          className="filter-group__header"
+          onClick={() => toggleGroup('size')}
+          aria-expanded={!collapsedGroups.size}
+        >
+          <div className="filter-group__title-wrapper">
+            <span className="filter-group__title">Size</span>
+            {hasActiveSize && <span className="filter-group__badge" />}
+          </div>
+          <ChevronDown
+            size={16}
+            className={`filter-group__icon ${collapsedGroups.size ? 'filter-group__icon--collapsed' : ''}`}
+          />
+        </button>
+        <div className={`filter-group__content ${collapsedGroups.size ? 'filter-group__content--collapsed' : ''}`}>
+          <div className="filter-group__content-inner">
+            <div className="filter-group__options filter-group__options--sizes">
+              {SIZE_OPTIONS.map((s) => (
+                <button
+                  key={s}
+                  className={`filter-size-btn ${filters.size === s ? 'filter-size-btn--active' : ''}`}
+                  onClick={() => updateFilter('size', filters.size === s ? '' : s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Price Range */}
       <div className="filter-group">
-        <h4 className="filter-group__title">Price Range</h4>
-        <div className="filter-price-inputs">
-          <input
-            type="number"
-            className="input-field"
-            placeholder="Min"
-            value={filters.minPrice}
-            onChange={(e) => updateFilter('minPrice', e.target.value)}
+        <button
+          type="button"
+          className="filter-group__header"
+          onClick={() => toggleGroup('price')}
+          aria-expanded={!collapsedGroups.price}
+        >
+          <div className="filter-group__title-wrapper">
+            <span className="filter-group__title">Price Range</span>
+            {hasActivePrice && <span className="filter-group__badge" />}
+          </div>
+          <ChevronDown
+            size={16}
+            className={`filter-group__icon ${collapsedGroups.price ? 'filter-group__icon--collapsed' : ''}`}
           />
-          <span>—</span>
-          <input
-            type="number"
-            className="input-field"
-            placeholder="Max"
-            value={filters.maxPrice}
-            onChange={(e) => updateFilter('maxPrice', e.target.value)}
-          />
+        </button>
+        <div className={`filter-group__content ${collapsedGroups.price ? 'filter-group__content--collapsed' : ''}`}>
+          <div className="filter-group__content-inner">
+            <div className="filter-price-inputs">
+              <input
+                type="number"
+                className="input-field"
+                placeholder="Min"
+                value={filters.minPrice}
+                onChange={(e) => updateFilter('minPrice', e.target.value)}
+              />
+              <span>—</span>
+              <input
+                type="number"
+                className="input-field"
+                placeholder="Max"
+                value={filters.maxPrice}
+                onChange={(e) => updateFilter('maxPrice', e.target.value)}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Quick Filters */}
       <div className="filter-group">
-        <h4 className="filter-group__title">Quick Filters</h4>
-        <div className="filter-group__options">
-          <button
-            className={`filter-option ${filters.inStock === 'true' ? 'filter-option--active' : ''}`}
-            onClick={() => updateFilter('inStock', filters.inStock === 'true' ? '' : 'true')}
-          >
-            In Stock Only
-          </button>
-          <button
-            className={`filter-option ${filters.isSale === 'true' ? 'filter-option--active' : ''}`}
-            onClick={() => updateFilter('isSale', filters.isSale === 'true' ? '' : 'true')}
-          >
-            On Sale
-          </button>
-          <button
-            className={`filter-option ${filters.isNewArrival === 'true' ? 'filter-option--active' : ''}`}
-            onClick={() => updateFilter('isNewArrival', filters.isNewArrival === 'true' ? '' : 'true')}
-          >
-            New Arrivals
-          </button>
+        <button
+          type="button"
+          className="filter-group__header"
+          onClick={() => toggleGroup('quick')}
+          aria-expanded={!collapsedGroups.quick}
+        >
+          <div className="filter-group__title-wrapper">
+            <span className="filter-group__title">Quick Filters</span>
+            {hasActiveQuick && <span className="filter-group__badge" />}
+          </div>
+          <ChevronDown
+            size={16}
+            className={`filter-group__icon ${collapsedGroups.quick ? 'filter-group__icon--collapsed' : ''}`}
+          />
+        </button>
+        <div className={`filter-group__content ${collapsedGroups.quick ? 'filter-group__content--collapsed' : ''}`}>
+          <div className="filter-group__content-inner">
+            <div className="filter-group__options">
+              <button
+                className={`filter-option ${filters.inStock === 'true' ? 'filter-option--active' : ''}`}
+                onClick={() => updateFilter('inStock', filters.inStock === 'true' ? '' : 'true')}
+              >
+                In Stock Only
+              </button>
+              <button
+                className={`filter-option ${filters.isSale === 'true' ? 'filter-option--active' : ''}`}
+                onClick={() => updateFilter('isSale', filters.isSale === 'true' ? '' : 'true')}
+              >
+                On Sale
+              </button>
+              <button
+                className={`filter-option ${filters.isNewArrival === 'true' ? 'filter-option--active' : ''}`}
+                onClick={() => updateFilter('isNewArrival', filters.isNewArrival === 'true' ? '' : 'true')}
+              >
+                New Arrivals
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -275,8 +399,8 @@ export default function Shop() {
   return (
     <>
       <Helmet>
-        <title>{`${pageTitle} — Luxurybyire`}</title>
-        <meta name="description" content={`Shop premium footwear at Luxurybyire. Browse our ${pageTitle.toLowerCase()} collection.`} />
+        <title>{pageTitle} | Luxurybyire</title>
+        <meta name="description" content="Explore our premium collection of authentic footwear for men and women." />
       </Helmet>
 
       <div className="shop-page">
@@ -286,11 +410,27 @@ export default function Shop() {
             <div>
               <h1 className="shop-header__title">{pageTitle}</h1>
               <p className="shop-header__count">
-                {pagination.total !== undefined ? `${pagination.total} product${pagination.total !== 1 ? 's' : ''}` : ''}
+                {loading ? 'Loading products...' : `${pagination.total || 0} products found`}
               </p>
             </div>
 
             <div className="shop-header__controls">
+              {/* Desktop Filter Toggle */}
+              {!isMobile && (
+                <button
+                  type="button"
+                  className="btn btn--outline btn--sm shop-filter-toggle"
+                  onClick={() => setSidebarOpen((prev) => !prev)}
+                  aria-label={sidebarOpen ? 'Hide filters sidebar' : 'Show filters sidebar'}
+                >
+                  <SlidersHorizontal size={14} />
+                  <span>{sidebarOpen ? 'Hide Filters' : 'Show Filters'}</span>
+                  {activeFilterCount > 0 && (
+                    <span className="shop-filter-toggle__count">{activeFilterCount}</span>
+                  )}
+                </button>
+              )}
+
               {/* Mobile Filter Toggle */}
               {isMobile && (
                 <button
@@ -321,9 +461,9 @@ export default function Shop() {
             </div>
           </div>
 
-          <div className="shop-layout">
+          <div className={`shop-layout ${!sidebarOpen ? 'shop-layout--no-sidebar' : ''}`}>
             {/* Desktop Filter Sidebar */}
-            {!isMobile && (
+            {!isMobile && sidebarOpen && (
               <aside className="shop-filters">
                 <div className="shop-filters__header">
                   <h3 className="shop-filters__title">Filters</h3>

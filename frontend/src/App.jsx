@@ -1,7 +1,9 @@
 import { Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import ScrollToTopButton from './components/common/ScrollToTopButton';
 
 // Customer Pages
 import Home from './pages/customer/Home';
@@ -31,15 +33,33 @@ function ScrollToTop() {
   return null;
 }
 
+// Subtle page transition wrapper
+function PageWrapper({ children }) {
+  const location = useLocation();
+  return (
+    <motion.div
+      key={location.pathname}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 // Customer layout with Navbar + Footer
 function CustomerLayout() {
   return (
     <>
       <Navbar />
       <main className="page">
-        <Outlet />
+        <PageWrapper>
+          <Outlet />
+        </PageWrapper>
       </main>
       <Footer />
+      <ScrollToTopButton />
     </>
   );
 }
