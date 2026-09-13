@@ -33,6 +33,7 @@ const demoImages = {
   ],
   sandals: [
     'https://res.cloudinary.com/miqitaxh/image/upload/v1789300643/luxurybyire/products/qdrh78yqw8xwre4w8z3g.jpg',
+    'https://res.cloudinary.com/miqitaxh/image/upload/v1789300643/luxurybyire/products/qdrh78yqw8xwre4w8z3g.jpg',
   ],
   boots: [
     'https://res.cloudinary.com/miqitaxh/image/upload/v1789300645/luxurybyire/products/lwuhqk3jbi5dyczob79n.jpg',
