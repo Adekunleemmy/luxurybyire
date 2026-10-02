@@ -1,12 +1,46 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { formatPrice, getOptimizedImageUrl, isProductNew, recordProductInteraction } from '../../utils/helpers';
 import './ProductCard.css';
 
 export default function ProductCard({ product, onProductClick }) {
-  const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
-  const imageUrl = getOptimizedImageUrl(primaryImage?.url, 600) || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=60';
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const rawImages = product.images && product.images.length > 0 ? product.images : [];
+  const sortedImages = rawImages.length > 0
+    ? [...rawImages].sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0))
+    : [{ url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=60' }];
+
+  const hasMultipleImages = sortedImages.length > 1;
   const outOfStock = product.stockQuantity === 0 || product.isAvailable === false;
   const isNew = isProductNew(product.createdAt, product.isNewArrival);
+
+  useEffect(() => {
+    if (!isHovered || !hasMultipleImages) {
+      setActiveImageIndex(0);
+      return;
+    }
+
+    // Switch to second image after a brief hover (700ms) so customer immediately notices
+    const initialTimer = setTimeout(() => {
+      setActiveImageIndex(1);
+    }, 700);
+
+    // If customer continues hovering, smoothly cycle through all angles every 2 seconds
+    let intervalTimer;
+    const cycleTimer = setTimeout(() => {
+      intervalTimer = setInterval(() => {
+        setActiveImageIndex((prev) => (prev + 1) % sortedImages.length);
+      }, 2000);
+    }, 700);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearTimeout(cycleTimer);
+      if (intervalTimer) clearInterval(intervalTimer);
+    };
+  }, [isHovered, hasMultipleImages, sortedImages.length]);
 
   const handleClick = (e) => {
     recordProductInteraction(product);
@@ -21,25 +55,44 @@ export default function ProductCard({ product, onProductClick }) {
   };
 
   return (
-    <article className={`product-card ${outOfStock ? 'product-card--out' : ''}`}>
+    <article
+      className={`product-card ${outOfStock ? 'product-card--out' : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <Link
         to={`/product/${product.slug}`}
         onClick={handleClick}
         className="product-card__link"
         aria-label={`View ${product.name}`}
       >
-        {/* Image */}
+        {/* Image Wrap */}
         <div className="product-card__image-wrap">
-          <img
-            src={imageUrl}
-            alt={product.name}
-            className="product-card__image"
-            loading="lazy"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=60';
-            }}
-          />
+          {sortedImages.map((img, idx) => (
+            <img
+              key={img.id || img.url || idx}
+              src={getOptimizedImageUrl(img.url, 600)}
+              alt={`${product.name} - view ${idx + 1}`}
+              className={`product-card__image ${idx === activeImageIndex ? 'product-card__image--active' : ''}`}
+              loading={idx === 0 ? 'lazy' : 'eager'}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=60';
+              }}
+            />
+          ))}
+
+          {/* Multiple Images Dots Indicator */}
+          {hasMultipleImages && (
+            <div className="product-card__image-dots" aria-hidden="true">
+              {sortedImages.map((_, idx) => (
+                <span
+                  key={idx}
+                  className={`product-card__dot ${idx === activeImageIndex ? 'product-card__dot--active' : ''}`}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Badges */}
           {isNew && (
