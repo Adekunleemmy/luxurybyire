@@ -22,8 +22,7 @@ export default function AdminProductForm() {
 
   const [form, setForm] = useState({
     name: '', brand: '', description: '', price: '', previousPrice: '', gender: 'UNISEX',
-    stockQuantity: '0', categoryId: '', sizes: [], colours: [], isFeatured: false,
-    isNewArrival: false, isSale: false, images: [],
+    stockQuantity: '10', categoryId: '', sizes: [], colours: [], isAvailable: true, images: [],
   });
   const [colourInput, setColourInput] = useState('');
 
@@ -38,7 +37,7 @@ export default function AdminProductForm() {
           gender: p.gender, stockQuantity: String(p.stockQuantity), categoryId: p.categoryId,
           sizes: p.sizes?.map(s => s.size) || [],
           colours: p.colours?.map(c => c.colour) || [],
-          isFeatured: p.isFeatured, isNewArrival: p.isNewArrival, isSale: p.isSale,
+          isAvailable: p.isAvailable && p.stockQuantity > 0,
           images: p.images?.map(img => ({ url: img.url, publicId: img.publicId, isPrimary: img.isPrimary })) || [],
         });
       }).catch(err => { toast.error(getErrorMessage(err)); navigate('/admin/products'); }).finally(() => setLoading(false));
@@ -108,7 +107,8 @@ export default function AdminProductForm() {
         ...form,
         price: parseFloat(form.price),
         previousPrice: form.previousPrice ? parseFloat(form.previousPrice) : null,
-        stockQuantity: parseInt(form.stockQuantity) || 0,
+        stockQuantity: form.isAvailable ? (parseInt(form.stockQuantity) > 0 ? parseInt(form.stockQuantity) : 10) : 0,
+        isAvailable: form.isAvailable,
       };
 
       if (isEdit) { await updateProduct(id, data); toast.success('Product updated'); }
@@ -189,12 +189,6 @@ export default function AdminProductForm() {
             </div>
           </div>
 
-          {/* Inventory */}
-          <div className="admin-form__section">
-            <h3 className="admin-form__section-title">Inventory</h3>
-            <div className="input-group" style={{ maxWidth: '200px' }}><label className="input-label">Stock Quantity</label><input className="input-field" type="number" min="0" value={form.stockQuantity} onChange={e => updateField('stockQuantity', e.target.value)} /></div>
-          </div>
-
           {/* Images */}
           <div className="admin-form__section">
             <h3 className="admin-form__section-title">Product Images</h3>
@@ -217,17 +211,51 @@ export default function AdminProductForm() {
             </div>
           </div>
 
-          {/* Visibility */}
+          {/* Availability & Stock Status */}
           <div className="admin-form__section">
-            <h3 className="admin-form__section-title">Visibility</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {[['isFeatured', 'Featured Product'], ['isNewArrival', 'New Arrival'], ['isSale', 'On Sale']].map(([key, label]) => (
-                <label key={key} className="toggle">
-                  <input type="checkbox" className="toggle__input" checked={form[key]} onChange={e => updateField(key, e.target.checked)} />
-                  <span className="toggle__track"><span className="toggle__thumb" /></span>
-                  <span className="toggle__label">{label}</span>
-                </label>
-              ))}
+            <h3 className="admin-form__section-title">Stock & Availability</h3>
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
+              Control whether this product is currently in stock. Out-of-stock items will not appear in the customer shop.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <label className="toggle">
+                <input
+                  type="checkbox"
+                  className="toggle__input"
+                  checked={form.isAvailable}
+                  onChange={e => {
+                    const checked = e.target.checked;
+                    setForm(prev => ({
+                      ...prev,
+                      isAvailable: checked,
+                      stockQuantity: checked ? (parseInt(prev.stockQuantity) > 0 ? prev.stockQuantity : '10') : '0',
+                    }));
+                  }}
+                />
+                <span className="toggle__track"><span className="toggle__thumb" /></span>
+                <span className="toggle__label" style={{ fontWeight: 600 }}>
+                  {form.isAvailable ? (
+                    <span style={{ color: 'var(--color-success)' }}>In Stock (Visible in Shop)</span>
+                  ) : (
+                    <span style={{ color: 'var(--color-error)' }}>Out of Stock (Hidden from Shop)</span>
+                  )}
+                </span>
+              </label>
+
+              {form.isAvailable && (
+                <div className="input-group" style={{ maxWidth: '200px' }}>
+                  <label className="input-label">Stock Quantity</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    min="1"
+                    value={form.stockQuantity}
+                    onChange={e => updateField('stockQuantity', e.target.value)}
+                    placeholder="10"
+                  />
+                  <span className="input-hint">Units available for sale</span>
+                </div>
+              )}
             </div>
           </div>
 

@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Plus, Edit2, Trash2, Search, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getAdminProducts, deleteProduct } from '../../services/api';
-import { formatPrice, getErrorMessage } from '../../utils/helpers';
+import { getAdminProducts, updateProduct, deleteProduct } from '../../services/api';
+import { formatPrice, getErrorMessage, isProductNew } from '../../utils/helpers';
 import { useDebounce } from '../../hooks/useCommon';
 import './Admin.css';
 
@@ -26,6 +26,39 @@ export default function AdminProducts() {
   };
 
   useEffect(() => { loadProducts(); }, [debouncedSearch]);
+
+  const [togglingId, setTogglingId] = useState(null);
+
+  const handleToggleStock = async (product) => {
+    const isCurrentlyInStock = product.isAvailable && product.stockQuantity > 0;
+    const newAvailable = !isCurrentlyInStock;
+    const newStock = newAvailable ? (product.stockQuantity > 0 ? product.stockQuantity : 10) : 0;
+
+    setTogglingId(product.id);
+    try {
+      await updateProduct(product.id, {
+        isAvailable: newAvailable,
+        stockQuantity: newStock,
+      });
+
+      setProducts(prev => prev.map(p => {
+        if (p.id === product.id) {
+          return {
+            ...p,
+            isAvailable: newAvailable,
+            stockQuantity: newStock,
+          };
+        }
+        return p;
+      }));
+
+      toast.success(`"${product.name}" marked ${newAvailable ? 'In Stock (Visible in Shop)' : 'Out of Stock (Hidden from Shop)'}`);
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Delete "${name}"? This action cannot be undone.`)) return;
@@ -71,14 +104,18 @@ export default function AdminProducts() {
                     <th>Product</th>
                     <th>Brand</th>
                     <th>Price</th>
-                    <th>Stock</th>
-                    <th>Status</th>
+                    <th>Stock Status</th>
+                    <th>Tags</th>
                     <th style={{ textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {products.map(product => {
                     const img = product.images?.find(i => i.isPrimary) || product.images?.[0];
+                    const isInStock = product.isAvailable && product.stockQuantity > 0;
+                    const isNew = isProductNew(product.createdAt, product.isNewArrival);
+                    const isSale = product.isSale || (product.previousPrice && product.previousPrice > product.price);
+
                     return (
                       <tr key={product.id}>
                         <td>
@@ -106,16 +143,41 @@ export default function AdminProducts() {
                           {product.previousPrice && <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textDecoration: 'line-through' }}>{formatPrice(product.previousPrice)}</div>}
                         </td>
                         <td>
-                          <span style={{ color: product.stockQuantity === 0 ? 'var(--color-error)' : 'inherit' }}>
-                            {product.stockQuantity}
-                          </span>
+                          <button
+                            type="button"
+                            disabled={togglingId === product.id}
+                            onClick={() => handleToggleStock(product)}
+                            className={`badge ${isInStock ? 'badge--status-delivered' : 'badge--status-cancelled'}`}
+                            style={{
+                              cursor: 'pointer',
+                              border: '1px solid transparent',
+                              padding: '6px 12px',
+                              fontSize: '11px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              borderRadius: '20px',
+                              transition: 'all 0.2s ease',
+                              opacity: togglingId === product.id ? 0.6 : 1,
+                            }}
+                            title={`Click to mark ${isInStock ? 'Out of Stock (Hide from Shop)' : 'In Stock (Show in Shop)'}`}
+                          >
+                            <span
+                              style={{
+                                width: '7px',
+                                height: '7px',
+                                borderRadius: '50%',
+                                backgroundColor: isInStock ? '#10b981' : '#ef4444',
+                                display: 'inline-block',
+                              }}
+                            />
+                            {isInStock ? `In Stock (${product.stockQuantity})` : 'Out of Stock (Hidden)'}
+                          </button>
                         </td>
                         <td>
                           <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                            {product.isFeatured && <span className="badge badge--featured">Featured</span>}
-                            {product.isNewArrival && <span className="badge badge--new">New</span>}
-                            {product.isSale && <span className="badge badge--sale">Sale</span>}
-                            {product.stockQuantity === 0 && <span className="badge badge--status-cancelled">Out of Stock</span>}
+                            {isNew && <span className="badge badge--new">New</span>}
+                            {isSale && <span className="badge badge--sale">Sale</span>}
                           </div>
                         </td>
                         <td>

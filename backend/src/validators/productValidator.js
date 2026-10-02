@@ -56,6 +56,10 @@ export const createProductValidation = [
     .optional()
     .isBoolean()
     .withMessage('Sale must be true or false.'),
+  body('isAvailable')
+    .optional()
+    .isBoolean()
+    .withMessage('isAvailable must be true or false.'),
 ];
 
 export const updateProductValidation = [
@@ -104,4 +108,11 @@ export const updateProductValidation = [
     .optional()
     .isArray()
     .withMessage('Colours must be an array.'),
+  body('isAvailable')
+    .optional()
+    .isBoolean()
+    .withMessage('isAvailable must be true or false.'),
+  body('isFeatured').optional().isBoolean(),
+  body('isNewArrival').optional().isBoolean(),
+  body('isSale').optional().isBoolean(),
 ];

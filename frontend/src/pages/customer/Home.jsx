@@ -95,13 +95,34 @@ export default function Home() {
 
   useEffect(() => {
     Promise.all([
-      getProducts({ isFeatured: 'true', limit: 8 }),
+      getProducts({ limit: 24 }),
       getProducts({ isNewArrival: 'true', sort: 'newest', limit: 8 }),
       getSettings(),
       getCategories(),
     ])
       .then(([featuredRes, newRes, settingsRes, categoriesRes]) => {
-        setFeatured(featuredRes.data.data.products);
+        // Smart dynamic selection for Featured collection
+        const pool = featuredRes.data.data.products || [];
+        let viewedCategories = [];
+        let viewedBrands = [];
+        try {
+          viewedCategories = JSON.parse(localStorage.getItem('luxurybyire_viewed_cats') || '[]');
+          viewedBrands = JSON.parse(localStorage.getItem('luxurybyire_viewed_brands') || '[]');
+        } catch (e) {}
+
+        const scored = pool.map((p) => {
+          let score = Math.random(); // Dynamic random rotation
+          if (p.category?.slug && viewedCategories.includes(p.category.slug)) {
+            score += 2.0; // Boost tailored categories
+          }
+          if (p.brand && viewedBrands.includes(p.brand.toLowerCase())) {
+            score += 1.5; // Boost tailored brands
+          }
+          return { product: p, score };
+        });
+
+        scored.sort((a, b) => b.score - a.score);
+        setFeatured(scored.map((item) => item.product));
         setNewArrivals(newRes.data.data.products);
         setSettings(settingsRes.data.data);
         if (categoriesRes?.data?.data?.length > 0) {
@@ -115,8 +136,6 @@ export default function Home() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
-
-  const brands = ['Nike', 'Adidas', 'New Balance', 'Puma', 'Converse', 'Timberland'];
 
   return (
     <>
@@ -326,44 +345,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Brands ────────────────────────────────────── */}
-      <section className="section brands-section" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
-        <div className="container">
-          <motion.div
-            className="section-header"
-            style={{ textAlign: 'center' }}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <span className="section-eyebrow">We Carry</span>
-            <h2 className="section-title">Featured Brands</h2>
-            <p className="section-subtitle" style={{ margin: '0 auto' }}>
-              Authentic footwear from the world's most respected brands.
-            </p>
-          </motion.div>
-
-          <motion.div
-            className="brands-grid"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-40px' }}
-            variants={staggerContainer}
-          >
-            {brands.map((brand) => (
-              <motion.div key={brand} variants={fadeUpItem}>
-                <Link
-                  to={`/shop?brand=${encodeURIComponent(brand)}`}
-                  className="brand-item"
-                >
-                  <span className="brand-item__name">{brand}</span>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
       {/* ── Why Luxurybyire ───────────────────────────── */}
       <section className="section">

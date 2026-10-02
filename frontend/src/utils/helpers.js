@@ -130,3 +130,33 @@ export const getOptimizedImageUrl = (url, width = 800) => {
   return url;
 };
 
+/**
+ * Record user browsing interaction for smart recommendations.
+ */
+export const recordProductInteraction = (product) => {
+  if (!product) return;
+  try {
+    if (product.category?.slug) {
+      const stored = JSON.parse(localStorage.getItem('luxurybyire_viewed_cats') || '[]');
+      const updated = [product.category.slug, ...stored.filter((c) => c !== product.category.slug)].slice(0, 5);
+      localStorage.setItem('luxurybyire_viewed_cats', JSON.stringify(updated));
+    }
+    if (product.brand) {
+      const stored = JSON.parse(localStorage.getItem('luxurybyire_viewed_brands') || '[]');
+      const updated = [product.brand.toLowerCase(), ...stored.filter((b) => b !== product.brand.toLowerCase())].slice(0, 5);
+      localStorage.setItem('luxurybyire_viewed_brands', JSON.stringify(updated));
+    }
+  } catch (e) {}
+};
+
+/**
+ * Check if a product is considered a "New Arrival" (within 30 days).
+ */
+export const isProductNew = (createdAt, isNewArrivalFlag) => {
+  if (createdAt) {
+    const diffDays = (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24);
+    return diffDays <= 30;
+  }
+  return Boolean(isNewArrivalFlag);
+};
+

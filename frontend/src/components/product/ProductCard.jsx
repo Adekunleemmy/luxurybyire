@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom';
-import { formatPrice, getOptimizedImageUrl } from '../../utils/helpers';
+import { formatPrice, getOptimizedImageUrl, isProductNew, recordProductInteraction } from '../../utils/helpers';
 import './ProductCard.css';
 
 export default function ProductCard({ product, onProductClick }) {
   const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
   const imageUrl = getOptimizedImageUrl(primaryImage?.url, 600) || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=60';
-  const outOfStock = product.stockQuantity === 0;
+  const outOfStock = product.stockQuantity === 0 || product.isAvailable === false;
+  const isNew = isProductNew(product.createdAt, product.isNewArrival);
 
   const handleClick = (e) => {
+    recordProductInteraction(product);
     if (onProductClick) {
       // Allow user to open in new tab with Cmd/Ctrl/Shift/middle-click
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
@@ -40,7 +42,7 @@ export default function ProductCard({ product, onProductClick }) {
           />
 
           {/* Badges */}
-          {product.isNewArrival && (
+          {isNew && (
             <div className="product-card__badges">
               <span className="badge badge--new">New</span>
             </div>

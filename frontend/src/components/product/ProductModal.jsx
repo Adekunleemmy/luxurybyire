@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { X, ShoppingBag, Minus, Plus, MessageCircle, ArrowRight, AlertCircle, Check } from 'lucide-react';
 import { getProduct, getSettings } from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
-import { formatPrice, getGenderLabel, getOptimizedImageUrl } from '../../utils/helpers';
+import { formatPrice, getGenderLabel, getOptimizedImageUrl, recordProductInteraction, isProductNew } from '../../utils/helpers';
 import { useScrollLock } from '../../hooks/useCommon';
 import './ProductModal.css';
 
@@ -42,6 +42,7 @@ export default function ProductModal({ product, onClose }) {
       .then((res) => {
         const p = res.data.data.product;
         setFullProduct(p);
+        recordProductInteraction(p);
         if (p.colours?.length === 1) {
           setSelectedColour(p.colours[0].colour);
         }
@@ -56,7 +57,8 @@ export default function ProductModal({ product, onClose }) {
   if (!product) return null;
 
   const activeProduct = fullProduct || product;
-  const outOfStock = activeProduct.stockQuantity === 0;
+  const outOfStock = activeProduct.stockQuantity === 0 || activeProduct.isAvailable === false;
+  const isNew = isProductNew(activeProduct.createdAt, activeProduct.isNewArrival);
   const images = activeProduct.images?.length > 0
     ? activeProduct.images
     : [{ url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80', isPrimary: true }];
@@ -112,7 +114,7 @@ export default function ProductModal({ product, onClose }) {
                 alt={activeProduct.name}
                 className="product-modal__image"
               />
-              {activeProduct.isNewArrival && (
+              {isNew && (
                 <div className="product-modal__badges">
                   <span className="badge badge--new">New</span>
                 </div>

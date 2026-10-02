@@ -148,7 +148,7 @@ export default function Shop() {
   const hasActiveGender = Boolean(filters.gender);
   const hasActiveSize = Boolean(filters.size);
   const hasActivePrice = Boolean(filters.minPrice || filters.maxPrice);
-  const hasActiveQuick = Boolean(filters.inStock || filters.isSale || filters.isNewArrival);
+  const hasActiveQuick = Boolean(filters.isSale || filters.isNewArrival);
 
   const FilterContent = () => (
     <div className="shop-filters__body">
@@ -367,12 +367,6 @@ export default function Shop() {
         <div className={`filter-group__content ${collapsedGroups.quick ? 'filter-group__content--collapsed' : ''}`}>
           <div className="filter-group__content-inner">
             <div className="filter-group__options">
-              <button
-                className={`filter-option ${filters.inStock === 'true' ? 'filter-option--active' : ''}`}
-                onClick={() => updateFilter('inStock', filters.inStock === 'true' ? '' : 'true')}
-              >
-                In Stock Only
-              </button>
               <button
                 className={`filter-option ${filters.isSale === 'true' ? 'filter-option--active' : ''}`}
                 onClick={() => updateFilter('isSale', filters.isSale === 'true' ? '' : 'true')}

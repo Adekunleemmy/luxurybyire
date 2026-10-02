@@ -30,15 +30,23 @@ export const listProducts = async (query) => {
     limit = 12,
   } = query;
 
-  const where = { isAvailable: true };
+  // Only available products that have positive stock reflect in the customer shop
+  const where = {
+    isAvailable: true,
+    stockQuantity: { gt: 0 },
+  };
+
+  const andConditions = [];
 
   // Search across name, brand, description
   if (search) {
-    where.OR = [
-      { name: { contains: search, mode: 'insensitive' } },
-      { brand: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-    ];
+    andConditions.push({
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { brand: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ],
+    });
   }
 
   // Category filter (by slug)
@@ -68,15 +76,39 @@ export const listProducts = async (query) => {
     where.sizes = { some: { size: size } };
   }
 
-  // Stock filter
-  if (inStock === 'true') {
-    where.stockQuantity = { gt: 0 };
+  // Boolean flags
+  if (isSale === 'true') {
+    andConditions.push({
+      OR: [
+        { isSale: true },
+        { previousPrice: { not: null } },
+      ],
+    });
   }
 
-  // Boolean flags
-  if (isSale === 'true') where.isSale = true;
-  if (isFeatured === 'true') where.isFeatured = true;
-  if (isNewArrival === 'true') where.isNewArrival = true;
+  if (isNewArrival === 'true') {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    andConditions.push({
+      OR: [
+        { isNewArrival: true },
+        { createdAt: { gte: thirtyDaysAgo } },
+      ],
+    });
+  }
+
+  if (andConditions.length > 0) {
+    where.AND = andConditions;
+  }
+
+  if (isFeatured === 'true') {
+    const featuredCount = await prisma.product.count({
+      where: { ...where, isFeatured: true },
+    });
+    if (featuredCount > 0) {
+      where.isFeatured = true;
+    }
+  }
 
   // Sorting
   let orderBy;
@@ -209,7 +241,7 @@ export const createProduct = async (data) => {
   const {
     name, brand, description, price, previousPrice,
     gender, stockQuantity, categoryId, sizes, colours,
-    isFeatured, isNewArrival, isSale, images,
+    isFeatured, isNewArrival, isSale, isAvailable, images,
   } = data;
 
   // Generate unique slug
@@ -225,20 +257,26 @@ export const createProduct = async (data) => {
     throw new AppError('Category not found.', 400);
   }
 
+  const numPrice = parseFloat(price);
+  const numPrevPrice = previousPrice ? parseFloat(previousPrice) : null;
+  const numStock = stockQuantity !== undefined ? parseInt(stockQuantity) : 10;
+  const available = isAvailable !== undefined ? Boolean(isAvailable) : (numStock > 0);
+  const autoSale = numPrevPrice !== null && numPrevPrice > numPrice;
+
   const product = await prisma.product.create({
     data: {
       name,
       slug,
       brand,
       description,
-      price: parseFloat(price),
-      previousPrice: previousPrice ? parseFloat(previousPrice) : null,
+      price: numPrice,
+      previousPrice: numPrevPrice,
       gender: gender || 'UNISEX',
-      stockQuantity: parseInt(stockQuantity) || 0,
-      isFeatured: isFeatured || false,
-      isNewArrival: isNewArrival || false,
-      isSale: isSale || false,
-      isAvailable: parseInt(stockQuantity) > 0,
+      stockQuantity: available ? (numStock > 0 ? numStock : 10) : 0,
+      isFeatured: isFeatured !== undefined ? Boolean(isFeatured) : false,
+      isNewArrival: isNewArrival !== undefined ? Boolean(isNewArrival) : true,
+      isSale: isSale !== undefined ? Boolean(isSale) : autoSale,
+      isAvailable: available,
       categoryId,
       sizes: {
         create: (sizes || []).map((s) => ({ size: String(s) })),
@@ -306,16 +344,31 @@ export const updateProduct = async (id, data) => {
   if (isNewArrival !== undefined) updateData.isNewArrival = isNewArrival;
   if (isSale !== undefined) updateData.isSale = isSale;
 
+  if (isAvailable !== undefined) {
+    const avail = Boolean(isAvailable);
+    updateData.isAvailable = avail;
+    if (avail && (stockQuantity === undefined && existing.stockQuantity === 0)) {
+      updateData.stockQuantity = 10;
+    } else if (!avail && stockQuantity === undefined) {
+      updateData.stockQuantity = 0;
+    }
+  }
+
   if (stockQuantity !== undefined) {
     const qty = parseInt(stockQuantity);
     updateData.stockQuantity = qty;
-    // Auto-update availability based on stock
     if (isAvailable === undefined) {
       updateData.isAvailable = qty > 0;
     }
   }
 
-  if (isAvailable !== undefined) updateData.isAvailable = isAvailable;
+  if (price !== undefined || previousPrice !== undefined) {
+    const effPrice = price !== undefined ? parseFloat(price) : existing.price;
+    const effPrev = previousPrice !== undefined ? (previousPrice ? parseFloat(previousPrice) : null) : existing.previousPrice;
+    if (isSale === undefined) {
+      updateData.isSale = Boolean(effPrev && effPrev > effPrice);
+    }
+  }
 
   // Use a transaction for atomic updates with relations
   const product = await prisma.$transaction(async (tx) => {

@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { ShoppingBag, Minus, Plus, ChevronRight, AlertCircle } from 'lucide-react';
 import { getProduct } from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
-import { formatPrice, getGenderLabel, getOptimizedImageUrl } from '../../utils/helpers';
+import { formatPrice, getGenderLabel, getOptimizedImageUrl, recordProductInteraction, isProductNew } from '../../utils/helpers';
 import ProductCard from '../../components/product/ProductCard';
 import '../../components/product/ProductCard.css';
 import './ProductDetail.css';
@@ -34,11 +34,13 @@ export default function ProductDetail() {
 
     getProduct(slug)
       .then((res) => {
-        setProduct(res.data.data.product);
+        const prod = res.data.data.product;
+        setProduct(prod);
         setRelated(res.data.data.related);
+        recordProductInteraction(prod);
         // Auto-select colour if only one
-        if (res.data.data.product.colours?.length === 1) {
-          setSelectedColour(res.data.data.product.colours[0].colour);
+        if (prod.colours?.length === 1) {
+          setSelectedColour(prod.colours[0].colour);
         }
       })
       .catch((err) => {
@@ -83,7 +85,8 @@ export default function ProductDetail() {
     );
   }
 
-  const outOfStock = product.stockQuantity === 0;
+  const outOfStock = product.stockQuantity === 0 || product.isAvailable === false;
+  const isNew = isProductNew(product.createdAt, product.isNewArrival);
   const images = product.images?.length > 0 ? product.images : [{ url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80', isPrimary: true }];
 
   return (
@@ -130,7 +133,7 @@ export default function ProductDetail() {
                 alt={product.name}
                 className="pdp-gallery__image"
               />
-              {product.isNewArrival && <span className="badge badge--new pdp-gallery__badge-new">New</span>}
+              {isNew && <span className="badge badge--new pdp-gallery__badge-new">New</span>}
             </div>
 
             {images.length > 1 && (
