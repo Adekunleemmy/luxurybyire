@@ -285,12 +285,21 @@ export const createProduct = async (data) => {
         create: (colours || []).filter(c => c).map((c) => ({ colour: c })),
       },
       images: {
-        create: (images || []).map((img, index) => ({
-          url: img.url,
-          publicId: img.publicId || null,
-          isPrimary: index === 0,
-          sortOrder: index,
-        })),
+        create: (images || []).length > 0
+          ? [
+              { ...images[images.findIndex(img => Boolean(img.isPrimary)) !== -1 ? images.findIndex(img => Boolean(img.isPrimary)) : 0], isPrimary: true, sortOrder: 0 },
+              ...images.filter((_, i) => i !== (images.findIndex(img => Boolean(img.isPrimary)) !== -1 ? images.findIndex(img => Boolean(img.isPrimary)) : 0)).map((img, i) => ({
+                ...img,
+                isPrimary: false,
+                sortOrder: i + 1,
+              })),
+            ].map(img => ({
+              url: img.url,
+              publicId: img.publicId || null,
+              isPrimary: img.isPrimary,
+              sortOrder: img.sortOrder,
+            }))
+          : [],
       },
     },
     include: productIncludes,
@@ -396,12 +405,23 @@ export const updateProduct = async (id, data) => {
     if (images !== undefined) {
       await tx.productImage.deleteMany({ where: { productId: id } });
       if (images.length > 0) {
+        const primaryIdx = images.findIndex((img) => Boolean(img.isPrimary));
+        const effectivePrimaryIdx = primaryIdx !== -1 ? primaryIdx : 0;
+        const sortedImagesList = [
+          { ...images[effectivePrimaryIdx], isPrimary: true, sortOrder: 0 },
+          ...images.filter((_, i) => i !== effectivePrimaryIdx).map((img, i) => ({
+            ...img,
+            isPrimary: false,
+            sortOrder: i + 1,
+          })),
+        ];
+
         await tx.productImage.createMany({
-          data: images.map((img, index) => ({
+          data: sortedImagesList.map((img) => ({
             url: img.url,
             publicId: img.publicId || null,
-            isPrimary: img.isPrimary || index === 0,
-            sortOrder: img.sortOrder !== undefined ? img.sortOrder : index,
+            isPrimary: img.isPrimary,
+            sortOrder: img.sortOrder,
             productId: id,
           })),
         });

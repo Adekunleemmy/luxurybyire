@@ -88,10 +88,15 @@ export default function AdminProductForm() {
   };
 
   const setPrimaryImage = (idx) => {
-    setForm(prev => ({
-      ...prev,
-      images: prev.images.map((img, i) => ({ ...img, isPrimary: i === idx })),
-    }));
+    setForm(prev => {
+      const selected = prev.images[idx];
+      const others = prev.images.filter((_, i) => i !== idx);
+      const reordered = [
+        { ...selected, isPrimary: true },
+        ...others.map(img => ({ ...img, isPrimary: false })),
+      ];
+      return { ...prev, images: reordered };
+    });
   };
 
   const handleSubmit = async (e) => {
