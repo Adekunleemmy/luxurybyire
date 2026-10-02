@@ -160,3 +160,81 @@ export const isProductNew = (createdAt, isNewArrivalFlag) => {
   return Boolean(isNewArrivalFlag);
 };
 
+/**
+ * Map a colour name (e.g., 'White', 'Black', 'Cherry Red', 'White/Black') to a CSS color or gradient.
+ */
+export const getColorCode = (colourName) => {
+  if (!colourName || typeof colourName !== 'string') return '#94a3b8';
+  const trimmed = colourName.trim();
+
+  // If already a valid hex, rgb, or hsl
+  if (trimmed.startsWith('#') || trimmed.startsWith('rgb') || trimmed.startsWith('hsl')) {
+    return trimmed;
+  }
+
+  // Handle split colors like "White/Black", "White / Green", "Navy/White"
+  if (trimmed.includes('/')) {
+    const parts = trimmed.split('/').map((p) => p.trim());
+    if (parts.length >= 2) {
+      const c1 = getColorCode(parts[0]);
+      const c2 = getColorCode(parts[1]);
+      return `linear-gradient(135deg, ${c1} 50%, ${c2} 50%)`;
+    }
+  }
+
+  const key = trimmed.toLowerCase();
+  const COLOR_MAP = {
+    white: '#ffffff',
+    black: '#111111',
+    grey: '#8a8d91',
+    gray: '#8a8d91',
+    'light grey': '#d1d5db',
+    'light gray': '#d1d5db',
+    'dark grey': '#4b5563',
+    'dark gray': '#4b5563',
+    navy: '#0f172a',
+    'navy blue': '#0f172a',
+    blue: '#2563eb',
+    'royal blue': '#1d4ed8',
+    'sky blue': '#38bdf8',
+    'light blue': '#7dd3fc',
+    red: '#dc2626',
+    crimson: '#991b1b',
+    'cherry red': '#881337',
+    burgundy: '#800020',
+    maroon: '#7f1d1d',
+    wine: '#722f37',
+    green: '#16a34a',
+    'forest green': '#14532d',
+    'dark green': '#14532d',
+    olive: '#65a30d',
+    yellow: '#facc15',
+    gold: '#d97706',
+    orange: '#ea580c',
+    brown: '#78350f',
+    tan: '#d2b48c',
+    wheat: '#f5deb3',
+    beige: '#f5f5dc',
+    cream: '#fef3c7',
+    nude: '#e8beac',
+    parchment: '#f1ebd9',
+    pink: '#ec4899',
+    'light pink': '#fbcfe8',
+    rose: '#f43f5e',
+    purple: '#9333ea',
+    violet: '#7c3aed',
+    silver: '#cbd5e1',
+    teal: '#0d9488',
+    bronze: '#cd7f32',
+    coral: '#f87171',
+    charcoal: '#334155',
+    multi: 'linear-gradient(135deg, #ef4444 0%, #3b82f6 50%, #10b981 100%)',
+    multicolor: 'linear-gradient(135deg, #ef4444 0%, #3b82f6 50%, #10b981 100%)',
+    'multi-color': 'linear-gradient(135deg, #ef4444 0%, #3b82f6 50%, #10b981 100%)',
+    'multi-colour': 'linear-gradient(135deg, #ef4444 0%, #3b82f6 50%, #10b981 100%)',
+  };
+
+  return COLOR_MAP[key] || key;
+};
+
+

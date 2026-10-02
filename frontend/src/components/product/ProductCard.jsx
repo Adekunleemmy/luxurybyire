@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { formatPrice, getOptimizedImageUrl, isProductNew, recordProductInteraction } from '../../utils/helpers';
+import { formatPrice, getColorCode, getOptimizedImageUrl, isProductNew, recordProductInteraction } from '../../utils/helpers';
 import './ProductCard.css';
 
 export default function ProductCard({ product, onProductClick }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [hoveredColour, setHoveredColour] = useState(null);
 
   const rawImages = product.images && product.images.length > 0 ? product.images : [];
   const sortedImages = rawImages.length > 0
@@ -15,6 +16,11 @@ export default function ProductCard({ product, onProductClick }) {
   const hasMultipleImages = sortedImages.length > 1;
   const outOfStock = product.stockQuantity === 0 || product.isAvailable === false;
   const isNew = isProductNew(product.createdAt, product.isNewArrival);
+
+  // Extract colours list
+  const coloursList = (product.colours || [])
+    .map((c) => (typeof c === 'string' ? c : c?.colour))
+    .filter(Boolean);
 
   useEffect(() => {
     if (!isHovered || !hasMultipleImages) {
@@ -58,7 +64,10 @@ export default function ProductCard({ product, onProductClick }) {
     <article
       className={`product-card ${outOfStock ? 'product-card--out' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setHoveredColour(null);
+      }}
     >
       <Link
         to={`/product/${product.slug}`}
@@ -112,6 +121,39 @@ export default function ProductCard({ product, onProductClick }) {
         <div className="product-card__info">
           <span className="product-card__brand">{product.brand}</span>
           <h3 className="product-card__name">{product.name}</h3>
+
+          {/* Available Colours */}
+          {coloursList.length > 0 && (
+            <div
+              className="product-card__colours"
+              onMouseLeave={() => setHoveredColour(null)}
+              title={coloursList.join(', ')}
+            >
+              <div className="product-card__colour-swatches" aria-label={`Available in: ${coloursList.join(', ')}`}>
+                {coloursList.slice(0, 4).map((colourName, idx) => (
+                  <span
+                    key={idx}
+                    className={`product-card__colour-swatch ${hoveredColour === colourName ? 'product-card__colour-swatch--active' : ''}`}
+                    style={{ background: getColorCode(colourName) }}
+                    title={colourName}
+                    onMouseEnter={(e) => {
+                      e.stopPropagation();
+                      setHoveredColour(colourName);
+                    }}
+                  />
+                ))}
+                {coloursList.length > 4 && (
+                  <span className="product-card__colour-more">
+                    +{coloursList.length - 4}
+                  </span>
+                )}
+              </div>
+              <span className="product-card__colour-label">
+                {hoveredColour || (coloursList.length === 1 ? coloursList[0] : `${coloursList.length} Colours`)}
+              </span>
+            </div>
+          )}
+
           <div className="price">
             <span className="price__current">{formatPrice(product.price)}</span>
             {product.previousPrice && product.previousPrice > product.price && (
@@ -123,3 +165,4 @@ export default function ProductCard({ product, onProductClick }) {
     </article>
   );
 }
+
