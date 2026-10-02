@@ -76,12 +76,11 @@ export default function AdminCategories() {
         ) : (
           <div className="admin-table-wrapper">
             <table className="admin-table">
-              <thead><tr><th>Name</th><th>Slug</th><th>Products</th><th>Description</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
+              <thead><tr><th>Name</th><th>Products</th><th>Description</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
               <tbody>
                 {categories.map(cat => (
                   <tr key={cat.id}>
                     <td style={{ fontWeight: 500 }}>{cat.name}</td>
-                    <td style={{ color: 'var(--color-text-muted)' }}>{cat.slug}</td>
                     <td>{cat._count?.products || 0}</td>
                     <td style={{ color: 'var(--color-text-muted)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cat.description || '—'}</td>
                     <td>

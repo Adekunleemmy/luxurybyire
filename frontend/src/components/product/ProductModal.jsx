@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { X, ShoppingBag, Minus, Plus, MessageCircle, ArrowRight, AlertCircle, Check } from 'lucide-react';
 import { getProduct, getSettings } from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
-import { formatPrice, calcDiscount, getGenderLabel, getOptimizedImageUrl } from '../../utils/helpers';
+import { formatPrice, getGenderLabel, getOptimizedImageUrl } from '../../utils/helpers';
 import { useScrollLock } from '../../hooks/useCommon';
 import './ProductModal.css';
 
@@ -56,7 +56,6 @@ export default function ProductModal({ product, onClose }) {
   if (!product) return null;
 
   const activeProduct = fullProduct || product;
-  const discount = calcDiscount(activeProduct.price, activeProduct.previousPrice);
   const outOfStock = activeProduct.stockQuantity === 0;
   const images = activeProduct.images?.length > 0
     ? activeProduct.images
@@ -113,10 +112,11 @@ export default function ProductModal({ product, onClose }) {
                 alt={activeProduct.name}
                 className="product-modal__image"
               />
-              <div className="product-modal__badges">
-                {activeProduct.isNewArrival && <span className="badge badge--new">New</span>}
-                {discount > 0 && <span className="badge badge--sale">-{discount}%</span>}
-              </div>
+              {activeProduct.isNewArrival && (
+                <div className="product-modal__badges">
+                  <span className="badge badge--new">New</span>
+                </div>
+              )}
             </div>
 
             {images.length > 1 && (
@@ -159,10 +159,7 @@ export default function ProductModal({ product, onClose }) {
                   {formatPrice(activeProduct.price)}
                 </span>
                 {activeProduct.previousPrice && activeProduct.previousPrice > activeProduct.price && (
-                  <>
-                    <span className="price__previous">{formatPrice(activeProduct.previousPrice)}</span>
-                    <span className="price__discount">-{discount}%</span>
-                  </>
+                  <span className="price__previous">{formatPrice(activeProduct.previousPrice)}</span>
                 )}
               </div>
 

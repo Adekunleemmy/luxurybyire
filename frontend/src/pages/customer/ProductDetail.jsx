@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { ShoppingBag, Minus, Plus, ChevronRight, AlertCircle } from 'lucide-react';
 import { getProduct } from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
-import { formatPrice, calcDiscount, getGenderLabel, getOptimizedImageUrl } from '../../utils/helpers';
+import { formatPrice, getGenderLabel, getOptimizedImageUrl } from '../../utils/helpers';
 import ProductCard from '../../components/product/ProductCard';
 import '../../components/product/ProductCard.css';
 import './ProductDetail.css';
@@ -83,7 +83,6 @@ export default function ProductDetail() {
     );
   }
 
-  const discount = calcDiscount(product.price, product.previousPrice);
   const outOfStock = product.stockQuantity === 0;
   const images = product.images?.length > 0 ? product.images : [{ url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80', isPrimary: true }];
 
@@ -131,7 +130,6 @@ export default function ProductDetail() {
                 alt={product.name}
                 className="pdp-gallery__image"
               />
-              {discount > 0 && <span className="badge badge--sale pdp-gallery__badge">-{discount}%</span>}
               {product.isNewArrival && <span className="badge badge--new pdp-gallery__badge-new">New</span>}
             </div>
 
@@ -169,10 +167,7 @@ export default function ProductDetail() {
                 {formatPrice(product.price)}
               </span>
               {product.previousPrice && product.previousPrice > product.price && (
-                <>
-                  <span className="price__previous">{formatPrice(product.previousPrice)}</span>
-                  <span className="price__discount">-{discount}% off</span>
-                </>
+                <span className="price__previous">{formatPrice(product.previousPrice)}</span>
               )}
             </div>
 

@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
-import { formatPrice, calcDiscount, getOptimizedImageUrl } from '../../utils/helpers';
+import { formatPrice, getOptimizedImageUrl } from '../../utils/helpers';
 import './ProductCard.css';
 
 export default function ProductCard({ product, onProductClick }) {
   const primaryImage = product.images?.find((img) => img.isPrimary) || product.images?.[0];
   const imageUrl = getOptimizedImageUrl(primaryImage?.url, 600) || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=60';
-  const discount = calcDiscount(product.price, product.previousPrice);
   const outOfStock = product.stockQuantity === 0;
 
   const handleClick = (e) => {
@@ -41,10 +40,11 @@ export default function ProductCard({ product, onProductClick }) {
           />
 
           {/* Badges */}
-          <div className="product-card__badges">
-            {product.isNewArrival && <span className="badge badge--new">New</span>}
-            {discount > 0 && <span className="badge badge--sale">-{discount}%</span>}
-          </div>
+          {product.isNewArrival && (
+            <div className="product-card__badges">
+              <span className="badge badge--new">New</span>
+            </div>
+          )}
 
           {outOfStock && (
             <div className="product-card__out-overlay">
