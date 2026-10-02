@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { formatPrice, getColorCode, getOptimizedImageUrl, isProductNew, recordProductInteraction } from '../../utils/helpers';
+import { formatPrice, getOptimizedImageUrl, isProductNew, recordProductInteraction } from '../../utils/helpers';
 import './ProductCard.css';
 
 export default function ProductCard({ product, onProductClick }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [hoveredColour, setHoveredColour] = useState(null);
 
   const rawImages = product.images && product.images.length > 0 ? product.images : [];
   const sortedImages = rawImages.length > 0
@@ -64,10 +63,7 @@ export default function ProductCard({ product, onProductClick }) {
     <article
       className={`product-card ${outOfStock ? 'product-card--out' : ''}`}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        setHoveredColour(null);
-      }}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Link
         to={`/product/${product.slug}`}
@@ -126,30 +122,10 @@ export default function ProductCard({ product, onProductClick }) {
           {coloursList.length > 0 && (
             <div
               className="product-card__colours"
-              onMouseLeave={() => setHoveredColour(null)}
               title={coloursList.join(', ')}
             >
-              <div className="product-card__colour-swatches" aria-label={`Available in: ${coloursList.join(', ')}`}>
-                {coloursList.slice(0, 4).map((colourName, idx) => (
-                  <span
-                    key={idx}
-                    className={`product-card__colour-swatch ${hoveredColour === colourName ? 'product-card__colour-swatch--active' : ''}`}
-                    style={{ background: getColorCode(colourName) }}
-                    title={colourName}
-                    onMouseEnter={(e) => {
-                      e.stopPropagation();
-                      setHoveredColour(colourName);
-                    }}
-                  />
-                ))}
-                {coloursList.length > 4 && (
-                  <span className="product-card__colour-more">
-                    +{coloursList.length - 4}
-                  </span>
-                )}
-              </div>
               <span className="product-card__colour-label">
-                {hoveredColour || (coloursList.length === 1 ? coloursList[0] : `${coloursList.length} Colours`)}
+                {coloursList.length === 1 ? '1 Colour' : `${coloursList.length} Colours`}
               </span>
             </div>
           )}
@@ -165,4 +141,5 @@ export default function ProductCard({ product, onProductClick }) {
     </article>
   );
 }
+
 
