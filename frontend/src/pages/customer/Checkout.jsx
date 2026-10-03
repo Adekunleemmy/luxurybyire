@@ -14,7 +14,7 @@ export default function Checkout() {
 
   const [zones, setZones] = useState([]);
   const [settings, setSettings] = useState(null);
-  const [form, setForm] = useState({ customerName: '', customerPhone: '', deliveryLocation: '', note: '' });
+  const [form, setForm] = useState({ customerName: '', customerPhone: '', deliveryAddress: '', deliveryLocation: '', note: '' });
   const [errors, setErrors] = useState({});
   const [selectedZone, setSelectedZone] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -41,6 +41,7 @@ export default function Checkout() {
     if (!form.customerName.trim() || form.customerName.trim().length < 2) errs.customerName = 'Please enter your full name';
     if (!form.customerPhone.trim()) errs.customerPhone = 'Please enter your phone number';
     else if (!/^(\+?234|0)[789]\d{9}$/.test(form.customerPhone.replace(/\s/g, ''))) errs.customerPhone = 'Please enter a valid Nigerian phone number';
+    if (!form.deliveryAddress.trim() || form.deliveryAddress.trim().length < 3) errs.deliveryAddress = 'Please enter your delivery address';
     if (!form.deliveryLocation) errs.deliveryLocation = 'Please select a delivery location';
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -58,6 +59,7 @@ export default function Checkout() {
       const orderData = {
         customerName: form.customerName.trim(),
         customerPhone: form.customerPhone.replace(/\s/g, ''),
+        deliveryAddress: form.deliveryAddress.trim(),
         deliveryLocation: form.deliveryLocation,
         deliveryFee,
         note: form.note.trim() || undefined,
@@ -77,6 +79,7 @@ export default function Checkout() {
       const whatsappUrl = generateWhatsAppUrl(settings?.whatsappNumber || '2348012345678', {
         customerName: form.customerName.trim(),
         customerPhone: form.customerPhone,
+        deliveryAddress: form.deliveryAddress.trim(),
         deliveryLocation: form.deliveryLocation,
         items: orderData.items,
         subtotal,
@@ -119,6 +122,22 @@ export default function Checkout() {
               <label className="input-label" htmlFor="customerPhone">Phone Number *</label>
               <input id="customerPhone" className={`input-field ${errors.customerPhone ? 'input-field--error' : ''}`} type="tel" value={form.customerPhone} onChange={e => { setForm(p => ({ ...p, customerPhone: e.target.value })); if (errors.customerPhone) setErrors(p => ({ ...p, customerPhone: '' })); }} placeholder="080XXXXXXXX" />
               {errors.customerPhone && <p className="input-error">{errors.customerPhone}</p>}
+            </div>
+
+            <div className="input-group">
+              <label className="input-label" htmlFor="deliveryAddress">Delivery Address *</label>
+              <input
+                id="deliveryAddress"
+                className={`input-field ${errors.deliveryAddress ? 'input-field--error' : ''}`}
+                type="text"
+                value={form.deliveryAddress}
+                onChange={e => {
+                  setForm(p => ({ ...p, deliveryAddress: e.target.value }));
+                  if (errors.deliveryAddress) setErrors(p => ({ ...p, deliveryAddress: '' }));
+                }}
+                placeholder="House/flat number, street name, area, landmark"
+              />
+              {errors.deliveryAddress && <p className="input-error">{errors.deliveryAddress}</p>}
             </div>
 
             <div className="input-group">

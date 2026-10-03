@@ -68,10 +68,14 @@ export const getGenderLabel = (gender) => {
  * Generate WhatsApp URL with formatted order message.
  */
 export const generateWhatsAppUrl = (whatsappNumber, order) => {
-  const { customerName, customerPhone, deliveryLocation, items, subtotal, deliveryFee, total, note } = order;
+  const { customerName, customerPhone, deliveryAddress, deliveryLocation, items, subtotal, deliveryFee, total, note } = order;
 
   let message = `Hello Luxurybyire,\n\nI would like to place an order.\n\n`;
-  message += `*Customer:*\nName: ${customerName}\nPhone: ${customerPhone}\nDelivery Location: ${deliveryLocation}\n\n`;
+  message += `*Customer:*\nName: ${customerName}\nPhone: ${customerPhone}\n`;
+  if (deliveryAddress) {
+    message += `Address: ${deliveryAddress}\n`;
+  }
+  message += `Delivery Location: ${deliveryLocation}\n\n`;
   message += `*Order:*\n`;
 
   items.forEach((item, index) => {

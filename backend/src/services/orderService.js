@@ -19,7 +19,7 @@ const generateOrderReference = () => {
  */
 export const createOrder = async (data) => {
   const {
-    customerName, customerPhone, deliveryLocation,
+    customerName, customerPhone, deliveryAddress, deliveryLocation,
     deliveryFee, note, items,
   } = data;
 
@@ -41,6 +41,7 @@ export const createOrder = async (data) => {
       reference,
       customerName,
       customerPhone,
+      deliveryAddress: deliveryAddress?.trim() || null,
       deliveryLocation,
       deliveryFee: parseFloat(deliveryFee),
       subtotal,

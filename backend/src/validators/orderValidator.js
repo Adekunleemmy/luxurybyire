@@ -13,6 +13,11 @@ export const createOrderValidation = [
     .withMessage('Phone number is required.')
     .matches(/^(\+?234|0)[789]\d{9}$/)
     .withMessage('Please enter a valid Nigerian phone number.'),
+  body('deliveryAddress')
+    .optional()
+    .trim()
+    .isLength({ max: 300 })
+    .withMessage('Address must be 300 characters or less.'),
   body('deliveryLocation')
     .trim()
     .notEmpty()

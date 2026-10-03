@@ -47,7 +47,8 @@ function OrderDetail() {
           <h3>Customer</h3>
           <p><strong>{order.customerName}</strong></p>
           <p>{order.customerPhone}</p>
-          <p>Delivery: {order.deliveryLocation}</p>
+          {order.deliveryAddress && <p><strong>Address:</strong> {order.deliveryAddress}</p>}
+          <p>Zone: {order.deliveryLocation}</p>
           {order.note && <p style={{ marginTop: '8px', fontStyle: 'italic', color: 'var(--color-text-muted)' }}>Note: {order.note}</p>}
           <a href={`https://wa.me/${order.customerPhone.replace(/^0/, '234')}`} target="_blank" rel="noopener noreferrer" className="btn btn--secondary btn--sm" style={{ marginTop: '12px' }}><MessageCircle size={14} /> Contact on WhatsApp</a>
         </div>
@@ -119,7 +120,10 @@ function OrdersList() {
                   <tr key={order.id}>
                     <td><Link to={`/admin/orders/${order.id}`} style={{ fontWeight: 500 }}>{order.reference}</Link></td>
                     <td>{order.customerName}<br /><small style={{ color: 'var(--color-text-muted)' }}>{order.customerPhone}</small></td>
-                    <td>{order.deliveryLocation}</td>
+                    <td>
+                      {order.deliveryLocation}
+                      {order.deliveryAddress && <><br /><small style={{ color: 'var(--color-text-muted)' }}>{order.deliveryAddress}</small></>}
+                    </td>
                     <td style={{ fontWeight: 500 }}>{formatPrice(order.total)}</td>
                     <td>{formatDateTime(order.createdAt)}</td>
                     <td><span className={`badge badge--status-${order.status.toLowerCase()}`}>{getStatusLabel(order.status)}</span></td>
