@@ -8,7 +8,16 @@ import slugify from 'slugify';
 export const listCategories = async () => {
   return prisma.category.findMany({
     include: {
-      _count: { select: { products: true } },
+      _count: {
+        select: {
+          products: {
+            where: {
+              isAvailable: true,
+              stockQuantity: { gt: 0 },
+            },
+          },
+        },
+      },
     },
     orderBy: { name: 'asc' },
   });

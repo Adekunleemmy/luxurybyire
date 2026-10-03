@@ -3,62 +3,11 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowRight, Shield, Truck, Star, HeadphonesIcon, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getProducts, getSettings, getCategories } from '../../services/api';
+import { getProducts, getSettings } from '../../services/api';
 import ProductCard from '../../components/product/ProductCard';
 import ProductModal from '../../components/product/ProductModal';
 import '../../components/product/ProductCard.css';
 import './Home.css';
-
-const DEFAULT_CATEGORIES = [
-  {
-    id: 'cat-sneakers',
-    name: 'Sneakers',
-    slug: 'sneakers',
-    description: 'Iconic street & athletic styles',
-    image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300618/luxurybyire/products/h85odjrixkmkbhnnmund.jpg',
-    _count: { products: 4 },
-  },
-  {
-    id: 'cat-casual',
-    name: 'Casual',
-    slug: 'casual',
-    description: 'Elevated everyday comfort',
-    image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300630/luxurybyire/products/x545rjjhxmbza6fxgouw.jpg',
-    _count: { products: 4 },
-  },
-  {
-    id: 'cat-formal',
-    name: 'Formal',
-    slug: 'formal',
-    description: 'Handcrafted dress shoes & loafers',
-    image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300641/luxurybyire/products/vf2xdvcc2ljpmmmrjerf.jpg',
-    _count: { products: 3 },
-  },
-  {
-    id: 'cat-sandals',
-    name: 'Sandals',
-    slug: 'sandals',
-    description: 'Effortless luxury & resort slides',
-    image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300643/luxurybyire/products/qdrh78yqw8xwre4w8z3g.jpg',
-    _count: { products: 2 },
-  },
-  {
-    id: 'cat-boots',
-    name: 'Boots',
-    slug: 'boots',
-    description: 'Rugged elegance for all seasons',
-    image: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300647/luxurybyire/products/bko8lmdqnee9r2n4cthy.jpg',
-    _count: { products: 3 },
-  },
-];
-
-const CATEGORY_FALLBACK_IMAGES = {
-  sneakers: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300618/luxurybyire/products/h85odjrixkmkbhnnmund.jpg',
-  casual: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300630/luxurybyire/products/x545rjjhxmbza6fxgouw.jpg',
-  formal: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300641/luxurybyire/products/vf2xdvcc2ljpmmmrjerf.jpg',
-  sandals: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300643/luxurybyire/products/qdrh78yqw8xwre4w8z3g.jpg',
-  boots: 'https://res.cloudinary.com/miqitaxh/image/upload/v1789300647/luxurybyire/products/bko8lmdqnee9r2n4cthy.jpg',
-};
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -86,7 +35,6 @@ const heroContainerVariants = {
 };
 
 export default function Home() {
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [featured, setFeatured] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
   const [settings, setSettings] = useState(null);
@@ -98,9 +46,8 @@ export default function Home() {
       getProducts({ limit: 24 }),
       getProducts({ isNewArrival: 'true', sort: 'newest', limit: 8 }),
       getSettings(),
-      getCategories(),
     ])
-      .then(([featuredRes, newRes, settingsRes, categoriesRes]) => {
+      .then(([featuredRes, newRes, settingsRes]) => {
         // Smart dynamic selection for Featured collection
         const pool = featuredRes.data.data.products || [];
         let viewedCategories = [];
@@ -125,13 +72,6 @@ export default function Home() {
         setFeatured(scored.map((item) => item.product));
         setNewArrivals(newRes.data.data.products);
         setSettings(settingsRes.data.data);
-        if (categoriesRes?.data?.data?.length > 0) {
-          const enriched = categoriesRes.data.data.map((cat) => ({
-            ...cat,
-            image: cat.image || CATEGORY_FALLBACK_IMAGES[cat.slug] || CATEGORY_FALLBACK_IMAGES.sneakers,
-          }));
-          setCategories(enriched);
-        }
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -279,72 +219,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      {/* ── Shop by Category ────────────────────────────── */}
-      <section className="section categories-section">
-        <div className="container">
-          <motion.div
-            className="section-header"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <span className="section-eyebrow">Curated Collections</span>
-            <div className="section-header__row">
-              <div>
-                <h2 className="section-title">Shop by Category</h2>
-                <p className="section-subtitle">
-                  Discover authentic designer footwear crafted for every silhouette.
-                </p>
-              </div>
-              <Link to="/shop" className="section-link">
-                View All Categories <ArrowRight size={16} />
-              </Link>
-            </div>
-          </motion.div>
-
-          <div className="category-grid">
-            {categories.map((category) => {
-              const fallbackImg = CATEGORY_FALLBACK_IMAGES[category.slug] || CATEGORY_FALLBACK_IMAGES.sneakers;
-              return (
-                <Link
-                  key={category.id || category.slug}
-                  to={`/shop?category=${category.slug}`}
-                  className="category-card"
-                >
-                  <div className="category-card__media">
-                    <img
-                      src={category.image || fallbackImg}
-                      alt={category.name}
-                      loading="eager"
-                      onError={(e) => {
-                        e.currentTarget.src = fallbackImg;
-                      }}
-                      className="category-card__img"
-                    />
-                    <div className="category-card__overlay" />
-                  </div>
-
-                  <div className="category-card__content">
-                    <h3 className="category-card__name">{category.name}</h3>
-                    {category.description && (
-                      <p className="category-card__desc">{category.description}</p>
-                    )}
-                    <div className="category-card__action">
-                      <span className="category-card__action-label">Explore</span>
-                      <span className="category-card__action-icon">
-                        <ArrowRight size={13} />
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
 
       {/* ── Why Luxurybyire ───────────────────────────── */}
       <section className="section">

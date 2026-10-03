@@ -51,3 +51,66 @@
 .filter-drawer__header h3 { font-family: var(--font-body); font-size: var(--text-lg); font-weight: var(--weight-semibold); }
 .filter-drawer__footer { position: sticky; bottom: 0; background: var(--color-surface); padding: var(--space-4) 0; border-top: 1px solid var(--color-border-light); margin-top: var(--space-4); }
 @media (max-width: 768px) { .shop-layout { grid-template-columns: 1fr; } .shop-page { padding: var(--space-5) 0 var(--space-10); } }
+
+/* ── Shop Container & Generous Luxury Card Sizing ────────── */
+.shop-page > .container {
+  max-width: var(--container-2xl);
+}
+
+.shop-layout .product-grid,
+.shop-layout .product-grid-skeleton {
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+.shop-layout--no-sidebar .product-grid,
+.shop-layout--no-sidebar .product-grid-skeleton {
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+}
+
+.shop-layout .product-card__name {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-2);
+}
+
+.shop-layout .product-card .price__current {
+  font-size: var(--text-lg);
+}
+
+@media (max-width: 1200px) {
+  .shop-layout--no-sidebar .product-grid,
+  .shop-layout--no-sidebar .product-grid-skeleton {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .shop-layout .product-grid,
+  .shop-layout .product-grid-skeleton,
+  .shop-layout--no-sidebar .product-grid,
+  .shop-layout--no-sidebar .product-grid-skeleton {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-5);
+  }
+}
+
+@media (max-width: 768px) {
+  .shop-layout .product-grid,
+  .shop-layout .product-grid-skeleton,
+  .shop-layout--no-sidebar .product-grid,
+  .shop-layout--no-sidebar .product-grid-skeleton {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 440px) {
+  .shop-layout .product-grid,
+  .shop-layout .product-grid-skeleton,
+  .shop-layout--no-sidebar .product-grid,
+  .shop-layout--no-sidebar .product-grid-skeleton {
+    gap: var(--space-3);
+  }
+}
+

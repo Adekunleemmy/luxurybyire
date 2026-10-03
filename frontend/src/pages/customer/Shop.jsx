@@ -138,8 +138,10 @@ export default function Shop() {
   // Build title based on active filters
   let pageTitle = 'Shop';
   if (filters.category) {
-    const cat = categories.find(c => c.slug === filters.category);
-    pageTitle = cat ? cat.name : 'Shop';
+    const cat = categories.find(
+      (c) => c.slug?.toLowerCase() === filters.category?.toLowerCase() || c.id === filters.category
+    );
+    pageTitle = cat ? cat.name : (filters.category.charAt(0).toUpperCase() + filters.category.slice(1));
   }
   if (filters.search) pageTitle = `Search: "${filters.search}"`;
 
@@ -514,7 +516,7 @@ export default function Shop() {
 
               {loading ? (
                 <div className="product-grid">
-                  {Array.from({ length: 8 }).map((_, i) => (
+                  {Array.from({ length: 9 }).map((_, i) => (
                     <div key={i}>
                       <div className="product-card-skeleton__image" />
                       <div className="product-card-skeleton__brand" />

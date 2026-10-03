@@ -49,9 +49,15 @@ export const listProducts = async (query) => {
     });
   }
 
-  // Category filter (by slug)
+  // Category filter (by slug, id, or name)
   if (category) {
-    where.category = { slug: category };
+    where.category = {
+      OR: [
+        { slug: { equals: category, mode: 'insensitive' } },
+        { id: category },
+        { name: { equals: category, mode: 'insensitive' } },
+      ],
+    };
   }
 
   // Brand filter

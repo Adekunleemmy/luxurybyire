@@ -1,15 +1,24 @@
 import { Link } from 'react-router-dom';
 import { MessageCircle, MapPin, Phone, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getSettings } from '../../services/api';
+import { getSettings, getCategories } from '../../services/api';
 import './Footer.css';
 
 export default function Footer() {
   const [settings, setSettings] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     getSettings()
       .then((res) => setSettings(res.data.data))
+      .catch(() => { });
+
+    getCategories()
+      .then((res) => {
+        if (Array.isArray(res?.data?.data)) {
+          setCategories(res.data.data);
+        }
+      })
       .catch(() => { });
   }, []);
 
@@ -38,11 +47,15 @@ export default function Footer() {
           <h4 className="footer__heading">Shop</h4>
           <nav aria-label="Shop links">
             <Link to="/shop" className="footer__link">All Products</Link>
-            <Link to="/shop?category=sneakers" className="footer__link">Sneakers</Link>
-            <Link to="/shop?category=casual" className="footer__link">Casual</Link>
-            <Link to="/shop?category=formal" className="footer__link">Formal</Link>
-            <Link to="/shop?category=sandals" className="footer__link">Sandals</Link>
-            <Link to="/shop?category=boots" className="footer__link">Boots</Link>
+            {categories.map((cat) => (
+              <Link
+                key={cat.id || cat.slug}
+                to={`/shop?category=${cat.slug}`}
+                className="footer__link"
+              >
+                {cat.name}
+              </Link>
+            ))}
           </nav>
         </div>
 

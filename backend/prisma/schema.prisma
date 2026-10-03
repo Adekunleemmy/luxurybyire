@@ -115,6 +115,7 @@ model Order {
   reference        String      @unique
   customerName     String
   customerPhone    String
+  deliveryAddress  String?
   deliveryLocation String
   deliveryFee      Float
   subtotal         Float

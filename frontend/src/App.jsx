@@ -24,12 +24,12 @@ import AdminCategories from './pages/admin/AdminCategories';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminSettings from './pages/admin/AdminSettings';
 
-// Scroll to top on route change
+// Scroll to top on route or filter change
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [pathname, search]);
   return null;
 }
 
