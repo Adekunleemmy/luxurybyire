@@ -473,15 +473,26 @@ export const getProductStats = async () => {
 };
 
 /**
- * Get distinct brands for filtering.
+ * Get distinct brands for filtering from available store inventory.
  */
 export const getBrands = async () => {
   const products = await prisma.product.findMany({
-    where: { isAvailable: true },
+    where: {
+      isAvailable: true,
+      brand: { not: '' },
+    },
     select: { brand: true },
     distinct: ['brand'],
     orderBy: { brand: 'asc' },
   });
 
-  return products.map((p) => p.brand);
+  const uniqueMap = new Map();
+  products.forEach((p) => {
+    const trimmed = p.brand?.trim();
+    if (trimmed && !uniqueMap.has(trimmed.toLowerCase())) {
+      uniqueMap.set(trimmed.toLowerCase(), trimmed);
+    }
+  });
+
+  return Array.from(uniqueMap.values()).sort((a, b) => a.localeCompare(b));
 };

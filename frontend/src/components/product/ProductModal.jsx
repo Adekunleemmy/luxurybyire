@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { X, ShoppingBag, Minus, Plus, MessageCircle, ArrowRight, AlertCircle, Check } from 'lucide-react';
 import { getProduct, getSettings } from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
-import { formatPrice, getGenderLabel, getOptimizedImageUrl, recordProductInteraction, isProductNew } from '../../utils/helpers';
+import { formatPrice, getGenderLabel, getOptimizedImageUrl, recordProductInteraction, isProductNew, generateProductWhatsAppUrl } from '../../utils/helpers';
 import { useScrollLock } from '../../hooks/useCommon';
 import './ProductModal.css';
 
@@ -78,15 +78,20 @@ export default function ProductModal({ product, onClose }) {
   };
 
   const handleWhatsAppOrder = () => {
-    const number = settings?.whatsappNumber || '2348012345678';
-    let text = `Hello Luxurybyire,\n\nI want to order: *${activeProduct.name}* (${activeProduct.brand})\n`;
-    text += `Price: ${formatPrice(activeProduct.price)}\n`;
-    if (selectedSize) text += `Size: ${selectedSize}\n`;
-    if (selectedColour) text += `Colour: ${selectedColour}\n`;
-    if (quantity > 1) text += `Quantity: ${quantity}\n`;
-    text += `\nPlease confirm availability and payment details. Thank you!`;
+    let customer = {};
+    try {
+      customer = JSON.parse(localStorage.getItem('luxurybyire_customer') || '{}');
+    } catch {
+      customer = {};
+    }
 
-    const url = `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+    const url = generateProductWhatsAppUrl(settings?.whatsappNumber, {
+      product: activeProduct,
+      selectedSize,
+      selectedColour,
+      quantity,
+      customer,
+    });
     window.open(url, '_blank');
   };
 

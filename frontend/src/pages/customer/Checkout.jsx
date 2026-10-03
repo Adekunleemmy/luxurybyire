@@ -14,7 +14,20 @@ export default function Checkout() {
 
   const [zones, setZones] = useState([]);
   const [settings, setSettings] = useState(null);
-  const [form, setForm] = useState({ customerName: '', customerPhone: '', deliveryAddress: '', deliveryLocation: '', note: '' });
+  const [form, setForm] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('luxurybyire_customer') || '{}');
+      return {
+        customerName: saved.name || '',
+        customerPhone: saved.phone || '',
+        deliveryAddress: saved.address || '',
+        deliveryLocation: '',
+        note: '',
+      };
+    } catch {
+      return { customerName: '', customerPhone: '', deliveryAddress: '', deliveryLocation: '', note: '' };
+    }
+  });
   const [errors, setErrors] = useState({});
   const [selectedZone, setSelectedZone] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -75,6 +88,14 @@ export default function Checkout() {
       };
 
       await createOrderApi(orderData);
+
+      try {
+        localStorage.setItem('luxurybyire_customer', JSON.stringify({
+          name: form.customerName.trim(),
+          phone: form.customerPhone.trim(),
+          address: form.deliveryAddress.trim(),
+        }));
+      } catch {}
 
       const whatsappUrl = generateWhatsAppUrl(settings?.whatsappNumber || '2348012345678', {
         customerName: form.customerName.trim(),

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowRight, Shield, Truck, Star, HeadphonesIcon, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getProducts, getSettings } from '../../services/api';
+import { getProducts, getSettings, getBrands } from '../../services/api';
 import ProductCard from '../../components/product/ProductCard';
 import ProductModal from '../../components/product/ProductModal';
 import '../../components/product/ProductCard.css';
@@ -37,41 +37,73 @@ const heroContainerVariants = {
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    Promise.all([
+    Promise.allSettled([
       getProducts({ limit: 24 }),
       getProducts({ isNewArrival: 'true', sort: 'newest', limit: 8 }),
       getSettings(),
+      getBrands(),
     ])
-      .then(([featuredRes, newRes, settingsRes]) => {
-        // Smart dynamic selection for Featured collection
-        const pool = featuredRes.data.data.products || [];
-        let viewedCategories = [];
-        let viewedBrands = [];
-        try {
-          viewedCategories = JSON.parse(localStorage.getItem('luxurybyire_viewed_cats') || '[]');
-          viewedBrands = JSON.parse(localStorage.getItem('luxurybyire_viewed_brands') || '[]');
-        } catch (e) {}
+      .then(([featuredResult, newResult, settingsResult, brandsResult]) => {
+        let pool = [];
+        if (featuredResult.status === 'fulfilled' && featuredResult.value?.data?.data?.products) {
+          pool = featuredResult.value.data.data.products;
+          let viewedCategories = [];
+          let viewedBrands = [];
+          try {
+            viewedCategories = JSON.parse(localStorage.getItem('luxurybyire_viewed_cats') || '[]');
+            viewedBrands = JSON.parse(localStorage.getItem('luxurybyire_viewed_brands') || '[]');
+          } catch (e) {}
 
-        const scored = pool.map((p) => {
-          let score = Math.random(); // Dynamic random rotation
-          if (p.category?.slug && viewedCategories.includes(p.category.slug)) {
-            score += 2.0; // Boost tailored categories
+          const scored = pool.map((p) => {
+            let score = Math.random(); // Dynamic random rotation
+            if (p.category?.slug && viewedCategories.includes(p.category.slug)) {
+              score += 2.0; // Boost tailored categories
+            }
+            if (p.brand && viewedBrands.includes(p.brand.toLowerCase())) {
+              score += 1.5; // Boost tailored brands
+            }
+            return { product: p, score };
+          });
+
+          scored.sort((a, b) => b.score - a.score);
+          setFeatured(scored.map((item) => item.product));
+        }
+
+        if (newResult.status === 'fulfilled' && newResult.value?.data?.data?.products) {
+          setNewArrivals(newResult.value.data.data.products);
+        }
+
+        if (settingsResult.status === 'fulfilled' && settingsResult.value?.data?.data) {
+          setSettings(settingsResult.value.data.data);
+        }
+
+        // Dynamically extract and consolidate brands strictly present in store inventory
+        const brandSet = new Map();
+
+        // 1. Brands from backend API endpoint
+        if (brandsResult.status === 'fulfilled' && Array.isArray(brandsResult.value?.data?.data)) {
+          brandsResult.value.data.data.forEach((b) => {
+            if (typeof b === 'string' && b.trim()) {
+              brandSet.set(b.trim().toLowerCase(), b.trim());
+            }
+          });
+        }
+
+        // 2. Supplement directly from loaded store products pool to ensure 100% parity with store stock
+        pool.forEach((p) => {
+          if (p.brand && p.brand.trim() && !brandSet.has(p.brand.trim().toLowerCase())) {
+            brandSet.set(p.brand.trim().toLowerCase(), p.brand.trim());
           }
-          if (p.brand && viewedBrands.includes(p.brand.toLowerCase())) {
-            score += 1.5; // Boost tailored brands
-          }
-          return { product: p, score };
         });
 
-        scored.sort((a, b) => b.score - a.score);
-        setFeatured(scored.map((item) => item.product));
-        setNewArrivals(newRes.data.data.products);
-        setSettings(settingsRes.data.data);
+        const storeBrands = Array.from(brandSet.values()).sort((a, b) => a.localeCompare(b));
+        setBrands(storeBrands);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -179,6 +211,53 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* ── Featured Brands ───────────────────────────── */}
+      {brands.length > 0 && (
+        <section className="section brands-section">
+          <div className="container">
+            <motion.div
+              className="section-header"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <span className="section-eyebrow">Iconic Labels</span>
+              <div className="section-header__row">
+                <div>
+                  <h2 className="section-title">Featured Brands</h2>
+                  <p className="section-subtitle">
+                    Authentic footwear from the world's most coveted brands & designers.
+                  </p>
+                </div>
+                <Link to="/shop" className="section-link">
+                  View All Brands <ArrowRight size={16} />
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="brands-grid"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
+              variants={staggerContainer}
+            >
+              {brands.map((brand) => (
+                <motion.div key={brand} variants={fadeUpItem}>
+                  <Link
+                    to={`/shop?brand=${encodeURIComponent(brand)}`}
+                    className="brand-item"
+                  >
+                    <span className="brand-item__name">{brand}</span>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* ── New Arrivals ──────────────────────────────── */}
       {newArrivals.length > 0 && (

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ShoppingBag, Minus, Plus, ChevronRight, AlertCircle } from 'lucide-react';
-import { getProduct } from '../../services/api';
+import { ShoppingBag, Minus, Plus, ChevronRight, AlertCircle, MessageCircle } from 'lucide-react';
+import { getProduct, getSettings } from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
-import { formatPrice, getGenderLabel, getOptimizedImageUrl, recordProductInteraction, isProductNew } from '../../utils/helpers';
+import { formatPrice, getGenderLabel, getOptimizedImageUrl, recordProductInteraction, isProductNew, generateProductWhatsAppUrl } from '../../utils/helpers';
 import ProductCard from '../../components/product/ProductCard';
 import '../../components/product/ProductCard.css';
 import './ProductDetail.css';
@@ -22,6 +22,13 @@ export default function ProductDetail() {
   const [selectedColour, setSelectedColour] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [sizeError, setSizeError] = useState('');
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    getSettings()
+      .then((res) => setSettings(res.data.data))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -56,6 +63,24 @@ export default function ProductDetail() {
     }
     setSizeError('');
     addItem(product, selectedSize, selectedColour, quantity);
+  };
+
+  const handleWhatsAppOrder = () => {
+    let customer = {};
+    try {
+      customer = JSON.parse(localStorage.getItem('luxurybyire_customer') || '{}');
+    } catch {
+      customer = {};
+    }
+
+    const url = generateProductWhatsAppUrl(settings?.whatsappNumber, {
+      product,
+      selectedSize,
+      selectedColour,
+      quantity,
+      customer,
+    });
+    window.open(url, '_blank');
   };
 
   if (loading) {
@@ -255,11 +280,21 @@ export default function ProductDetail() {
                   </div>
                 </div>
 
-                {/* Add to Cart */}
-                <button className="btn btn--primary btn--lg btn--full pdp-info__add-btn" onClick={handleAddToCart}>
-                  <ShoppingBag size={18} />
-                  Add to Cart — {formatPrice(product.price * quantity)}
-                </button>
+                {/* Actions */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', marginTop: 'var(--space-4)' }}>
+                  <button className="btn btn--primary btn--lg btn--full pdp-info__add-btn" onClick={handleAddToCart} style={{ marginTop: 0 }}>
+                    <ShoppingBag size={18} />
+                    Add to Cart — {formatPrice(product.price * quantity)}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn--outline btn--lg btn--full"
+                    onClick={handleWhatsAppOrder}
+                  >
+                    <MessageCircle size={18} /> Order via WhatsApp
+                  </button>
+                </div>
               </>
             )}
           </div>

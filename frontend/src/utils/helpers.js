@@ -101,6 +101,25 @@ export const generateWhatsAppUrl = (whatsappNumber, order) => {
 };
 
 /**
+ * Generate WhatsApp URL for direct single-product ordering.
+ */
+export const generateProductWhatsAppUrl = (whatsappNumber, { product, selectedSize, selectedColour, quantity = 1, customer = {} }) => {
+  const number = whatsappNumber || '2348012345678';
+  let text = `Hello Luxurybyire,\n\n`;
+  text += `Full Name: ${customer.name || ''}\n`;
+  text += `Phone Number: ${customer.phone || ''}\n`;
+  text += `Address: ${customer.address || ''}\n\n`;
+  text += `I want to order: *${product.name}* (${product.brand})\n`;
+  text += `Price: ${formatPrice(product.price)}\n`;
+  if (selectedSize) text += `Size: ${selectedSize}\n`;
+  if (selectedColour) text += `Colour: ${selectedColour}\n`;
+  if (quantity > 1) text += `Quantity: ${quantity}\n`;
+  text += `\nPlease confirm availability and payment details. Thank you!`;
+
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+};
+
+/**
  * Truncate text to a max length.
  */
 export const truncateText = (text, maxLength = 100) => {
