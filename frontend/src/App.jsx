@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ScrollToTopButton from './components/common/ScrollToTopButton';
+import FloatingCheckoutButton from './components/common/FloatingCheckoutButton';
 
 // Customer Pages
 import Home from './pages/customer/Home';
@@ -59,6 +60,7 @@ function CustomerLayout() {
         </PageWrapper>
       </main>
       <Footer />
+      <FloatingCheckoutButton />
       <ScrollToTopButton />
     </>
   );

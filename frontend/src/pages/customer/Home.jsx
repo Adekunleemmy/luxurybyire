@@ -185,8 +185,8 @@ export default function Home() {
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i}>
                   <div className="product-card-skeleton__image" />
-                  <div className="product-card-skeleton__brand" />
                   <div className="product-card-skeleton__name" />
+                  <div className="product-card-skeleton__brand" />
                   <div className="product-card-skeleton__price" />
                 </div>
               ))}

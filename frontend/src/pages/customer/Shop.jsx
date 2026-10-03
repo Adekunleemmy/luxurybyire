@@ -519,8 +519,8 @@ export default function Shop() {
                   {Array.from({ length: 9 }).map((_, i) => (
                     <div key={i}>
                       <div className="product-card-skeleton__image" />
-                      <div className="product-card-skeleton__brand" />
                       <div className="product-card-skeleton__name" />
+                      <div className="product-card-skeleton__brand" />
                       <div className="product-card-skeleton__price" />
                     </div>
                   ))}

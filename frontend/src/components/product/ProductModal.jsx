@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
-import { X, ShoppingBag, Minus, Plus, MessageCircle, ArrowRight, AlertCircle, Check } from 'lucide-react';
+import { X, ShoppingBag, Minus, Plus, ArrowRight, AlertCircle, Check } from 'lucide-react';
 import { getProduct, getSettings } from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
-import { formatPrice, getGenderLabel, getOptimizedImageUrl, recordProductInteraction, isProductNew, generateProductWhatsAppUrl } from '../../utils/helpers';
+import { formatPrice, getGenderLabel, getOptimizedImageUrl, recordProductInteraction, isProductNew } from '../../utils/helpers';
 import { useScrollLock } from '../../hooks/useCommon';
 import './ProductModal.css';
 
@@ -77,24 +77,6 @@ export default function ProductModal({ product, onClose }) {
     }, 2000);
   };
 
-  const handleWhatsAppOrder = () => {
-    let customer = {};
-    try {
-      customer = JSON.parse(localStorage.getItem('luxurybyire_customer') || '{}');
-    } catch {
-      customer = {};
-    }
-
-    const url = generateProductWhatsAppUrl(settings?.whatsappNumber, {
-      product: activeProduct,
-      selectedSize,
-      selectedColour,
-      quantity,
-      customer,
-    });
-    window.open(url, '_blank');
-  };
-
   return createPortal(
     <div className="product-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
       <div
@@ -146,10 +128,12 @@ export default function ProductModal({ product, onClose }) {
           {/* Right Column: Information & Actions */}
           <div className="product-modal__info">
             <div className="product-modal__header">
-              <span className="product-modal__brand">{activeProduct.brand}</span>
               <h2 className="product-modal__title">{activeProduct.name}</h2>
 
               <div className="product-modal__meta">
+                {activeProduct.brand && (
+                  <span className="product-modal__brand">{activeProduct.brand}</span>
+                )}
                 {activeProduct.category?.name && (
                   <span className="product-modal__tag">{activeProduct.category.name}</span>
                 )}
@@ -264,7 +248,7 @@ export default function ProductModal({ product, onClose }) {
                   </div>
                 </div>
 
-                {/* Add to Cart & WhatsApp */}
+                {/* Add to Cart */}
                 <div className="product-modal__actions">
                   <button
                     type="button"
@@ -280,14 +264,6 @@ export default function ProductModal({ product, onClose }) {
                         <ShoppingBag size={18} /> Add to Cart — {formatPrice(activeProduct.price * quantity)}
                       </>
                     )}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn--outline btn--lg btn--full product-modal__wa-btn"
-                    onClick={handleWhatsAppOrder}
-                  >
-                    <MessageCircle size={18} /> Order via WhatsApp
                   </button>
                 </div>
               </>

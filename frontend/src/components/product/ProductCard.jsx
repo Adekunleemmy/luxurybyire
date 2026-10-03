@@ -114,8 +114,12 @@ export default function ProductCard({ product, onProductClick }) {
 
         {/* Info */}
         <div className="product-card__info">
-          <span className="product-card__brand">{product.brand}</span>
           <h3 className="product-card__name">{product.name}</h3>
+          {product.brand && (
+            <div className="product-card__brand-wrap">
+              <span className="product-card__brand">{product.brand}</span>
+            </div>
+          )}
 
           {/* Available Colours */}
           {coloursList.length > 0 && (
