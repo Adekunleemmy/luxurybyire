@@ -1,0 +1,32 @@
+{
+  "name": "Luxurybyire — Premium Footwear",
+  "short_name": "Luxurybyire",
+  "description": "Premium footwear for men and women.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#18202a",
+  "theme_color": "#18202a",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

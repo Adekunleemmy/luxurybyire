@@ -285,6 +285,33 @@
 }
 
 @media (max-width: 768px) {
+  .navbar__inner {
+    height: 60px;
+    gap: var(--space-2);
+  }
+
+  .navbar__logo-text {
+    font-size: clamp(1.05rem, 4.5vw, 1.25rem);
+  }
+
+  .navbar__actions {
+    gap: 2px;
+  }
+
+  .navbar__action-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .navbar__search-form {
+    height: 48px;
+    gap: var(--space-2);
+  }
+
+  .navbar__search-input {
+    font-size: 16px;
+  }
+
   .navbar__menu-btn {
     display: flex;
     align-items: center;
@@ -298,12 +325,9 @@
 
 .navbar__mobile-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   height: 100dvh;
   background-color: rgba(10, 18, 30, 0.6);
   backdrop-filter: blur(4px);
@@ -321,7 +345,7 @@
 
 .navbar__mobile-menu {
   position: relative;
-  width: min(340px, 85vw);
+  width: min(320px, 86vw);
   height: 100%;
   height: 100dvh;
   background-color: var(--color-surface);
@@ -360,8 +384,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-full);
   color: var(--color-text-secondary);
   background-color: var(--color-bg-secondary);
@@ -370,7 +394,8 @@
   transition: all var(--transition-fast);
 }
 
-.navbar__mobile-close-btn:hover {
+.navbar__mobile-close-btn:hover,
+.navbar__mobile-close-btn:active {
   color: var(--color-text);
   background-color: var(--color-border);
 }
@@ -383,6 +408,7 @@
   flex-direction: column;
   gap: var(--space-1);
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .navbar__mobile-links {
@@ -444,6 +470,7 @@
 
 .navbar__mobile-footer {
   padding: var(--space-4) var(--space-5);
+  padding-bottom: max(var(--space-4), calc(var(--space-4) + env(safe-area-inset-bottom)));
   border-top: 1px solid var(--color-border-light);
   background-color: var(--color-bg-secondary);
   display: flex;
@@ -458,6 +485,7 @@
   align-items: center;
   gap: var(--space-3);
   width: 100%;
+  min-height: 44px;
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);

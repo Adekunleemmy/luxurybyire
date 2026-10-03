@@ -49,8 +49,91 @@
 @keyframes drawer-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .filter-drawer__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-5); }
 .filter-drawer__header h3 { font-family: var(--font-body); font-size: var(--text-lg); font-weight: var(--weight-semibold); }
-.filter-drawer__footer { position: sticky; bottom: 0; background: var(--color-surface); padding: var(--space-4) 0; border-top: 1px solid var(--color-border-light); margin-top: var(--space-4); }
-@media (max-width: 768px) { .shop-layout { grid-template-columns: 1fr; } .shop-page { padding: var(--space-5) 0 var(--space-10); } }
+.filter-drawer__footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--color-surface);
+  padding: var(--space-4) 0;
+  padding-bottom: max(var(--space-4), calc(var(--space-4) + env(safe-area-inset-bottom)));
+  border-top: 1px solid var(--color-border-light);
+  margin-top: var(--space-4);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 768px) {
+  .shop-page {
+    padding: var(--space-4) 0 var(--space-12);
+  }
+
+  .shop-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .shop-header__controls {
+    width: 100%;
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .shop-filter-toggle {
+    flex: 1;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .shop-sort {
+    flex: 1;
+  }
+
+  .shop-sort__select {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    font-size: 16px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+  }
+
+  .shop-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .filter-drawer {
+    max-height: 85vh;
+    max-height: 85dvh;
+    padding: var(--space-4) var(--space-4) 0;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .filter-size-btn {
+    height: 40px;
+  }
+
+  .shop-pagination {
+    margin-top: var(--space-8);
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .shop-pagination .btn {
+    min-height: 40px;
+    padding: var(--space-2) var(--space-4);
+  }
+}
 
 /* ── Shop Container & Generous Luxury Card Sizing ────────── */
 .shop-page > .container {

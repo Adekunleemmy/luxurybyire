@@ -547,14 +547,56 @@ select.input-field {
   justify-content: flex-end;
 }
 
-/* ── Responsive table ───────────────────────────────────── */
+/* ── Responsive table and components ─────────────────────── */
 @media (max-width: 768px) {
   .admin-table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
   }
 
   .admin-table {
-    min-width: 600px;
+    min-width: 580px;
+  }
+
+  .btn {
+    min-height: 40px;
+  }
+
+  .btn--lg {
+    min-height: 48px;
+  }
+
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    max-height: 92vh;
+    max-height: 92dvh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .modal-header {
+    padding: var(--space-4);
+  }
+
+  .modal-body {
+    padding: var(--space-4);
+  }
+
+  .modal-footer {
+    padding: var(--space-3) var(--space-4) max(var(--space-4), calc(var(--space-2) + env(safe-area-inset-bottom)));
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    min-height: 46px;
   }
 }

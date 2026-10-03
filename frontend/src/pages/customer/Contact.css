@@ -18,4 +18,40 @@ a.contact-item:hover { background: var(--color-bg-secondary); }
 .contact-social { display: flex; gap: var(--space-3); }
 .contact-social-link { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--color-text-secondary); text-decoration: none; transition: all var(--transition-fast); }
 .contact-social-link:hover { border-color: var(--color-accent); color: var(--color-accent); }
-@media (max-width: 768px) { .contact-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+  .contact-hero {
+    padding: var(--space-10) 0 var(--space-6);
+  }
+
+  .contact-hero__title {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .contact-hero__subtitle {
+    font-size: var(--text-sm);
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .contact-wa-card {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .contact-wa-btn {
+    min-height: 48px;
+    width: 100%;
+  }
+
+  .contact-social {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .contact-social-link {
+    min-height: 40px;
+  }
+}
