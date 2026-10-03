@@ -131,10 +131,10 @@ export const truncateText = (text, maxLength = 100) => {
  * Get API error message.
  */
 export const getErrorMessage = (error) => {
-  if (error.response?.data?.message) return error.response.data.message;
-  if (error.response?.data?.errors) {
+  if (Array.isArray(error.response?.data?.errors) && error.response.data.errors.length > 0) {
     return error.response.data.errors.map((e) => e.message).join('. ');
   }
+  if (error.response?.data?.message) return error.response.data.message;
   if (error.message === 'Network Error') return 'Unable to connect to server. Please check your connection.';
   return 'Something went wrong. Please try again.';
 };

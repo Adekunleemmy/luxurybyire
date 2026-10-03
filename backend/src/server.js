@@ -6,6 +6,8 @@ import rateLimit from 'express-rate-limit';
 import env from './config/env.js';
 import errorHandler from './middleware/errorHandler.js';
 
+import prisma from './config/database.js';
+
 // Route imports
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
@@ -16,6 +18,11 @@ import uploadRoutes from './routes/upload.js';
 import adminRoutes from './routes/admin.js';
 
 const app = express();
+
+// Ensure database schema integrity for migrations on startup
+prisma.$executeRawUnsafe(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "deliveryAddress" TEXT;`).catch((err) => {
+  console.warn('Schema check warning:', err.message);
+});
 
 // ─── Security Middleware ──────────────────────────────────
 app.use(helmet({

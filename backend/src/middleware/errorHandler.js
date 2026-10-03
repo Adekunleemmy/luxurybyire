@@ -30,7 +30,14 @@ const errorHandler = (err, req, res, _next) => {
   if (err.code === 'P2003') {
     return res.status(400).json({
       success: false,
-      message: 'Cannot complete this action because related records exist.',
+      message: 'One or more selected products or options are no longer available in the catalogue.',
+    });
+  }
+
+  if (err.code === 'P2022') {
+    return res.status(500).json({
+      success: false,
+      message: 'Database schema update in progress. Please refresh and try again.',
     });
   }
 
@@ -53,7 +60,7 @@ const errorHandler = (err, req, res, _next) => {
   const statusCode = err.statusCode || 500;
   const message = err.statusCode
     ? err.message
-    : 'Something went wrong. Please try again later.';
+    : (env.isDev && err.message ? err.message : 'Something went wrong. Please try again later.');
 
   res.status(statusCode).json({
     success: false,

@@ -34,8 +34,7 @@ export const createOrderValidation = [
     .isArray({ min: 1 })
     .withMessage('At least one item is required.'),
   body('items.*.productId')
-    .notEmpty()
-    .withMessage('Product ID is required for each item.'),
+    .optional({ nullable: true }),
   body('items.*.productName')
     .trim()
     .notEmpty()

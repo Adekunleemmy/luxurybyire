@@ -22,30 +22,29 @@ export default function ProductCard({ product, onProductClick }) {
     .filter(Boolean);
 
   useEffect(() => {
-    if (!isHovered || !hasMultipleImages) {
+    if (!hasMultipleImages) {
       setActiveImageIndex(0);
       return;
     }
 
-    // Switch to second image after a brief hover (700ms) so customer immediately notices
-    const initialTimer = setTimeout(() => {
-      setActiveImageIndex(1);
-    }, 700);
+    // Subtle staggered start so cards don't all flip at the exact same millisecond
+    const seed = (product.id || product.slug || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    const initialDelay = 1800 + (seed % 4) * 500; // 1.8s - 3.3s
 
-    // If customer continues hovering, smoothly cycle through all angles every 2 seconds
     let intervalTimer;
-    const cycleTimer = setTimeout(() => {
+    const startTimer = setTimeout(() => {
+      setActiveImageIndex((prev) => (prev + 1) % sortedImages.length);
+
       intervalTimer = setInterval(() => {
         setActiveImageIndex((prev) => (prev + 1) % sortedImages.length);
-      }, 2000);
-    }, 700);
+      }, 2800);
+    }, initialDelay);
 
     return () => {
-      clearTimeout(initialTimer);
-      clearTimeout(cycleTimer);
+      clearTimeout(startTimer);
       if (intervalTimer) clearInterval(intervalTimer);
     };
-  }, [isHovered, hasMultipleImages, sortedImages.length]);
+  }, [hasMultipleImages, sortedImages.length, product.id, product.slug]);
 
   const handleClick = (e) => {
     recordProductInteraction(product);

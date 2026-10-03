@@ -212,6 +212,46 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── New Arrivals ──────────────────────────────── */}
+      {newArrivals.length > 0 && (
+        <section className="section" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
+          <div className="container">
+            <motion.div
+              className="section-header"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <span className="section-eyebrow">Just In</span>
+              <div className="section-header__row">
+                <h2 className="section-title">New Arrivals</h2>
+                <Link to="/shop?isNewArrival=true&sort=newest" className="section-link">
+                  View All <ArrowRight size={16} />
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="product-grid"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
+              variants={staggerContainer}
+            >
+              {newArrivals.slice(0, 4).map((product) => (
+                <motion.div key={product.id} variants={fadeUpItem}>
+                  <ProductCard
+                    product={product}
+                    onProductClick={(p) => setSelectedProduct(p)}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+      )}
+
       {/* ── Featured Brands ───────────────────────────── */}
       {brands.length > 0 && (
         <section className="section brands-section">
@@ -252,46 +292,6 @@ export default function Home() {
                   >
                     <span className="brand-item__name">{brand}</span>
                   </Link>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
-      )}
-
-      {/* ── New Arrivals ──────────────────────────────── */}
-      {newArrivals.length > 0 && (
-        <section className="section" style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
-          <div className="container">
-            <motion.div
-              className="section-header"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <span className="section-eyebrow">Just In</span>
-              <div className="section-header__row">
-                <h2 className="section-title">New Arrivals</h2>
-                <Link to="/shop?isNewArrival=true&sort=newest" className="section-link">
-                  View All <ArrowRight size={16} />
-                </Link>
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="product-grid"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-40px' }}
-              variants={staggerContainer}
-            >
-              {newArrivals.slice(0, 4).map((product) => (
-                <motion.div key={product.id} variants={fadeUpItem}>
-                  <ProductCard
-                    product={product}
-                    onProductClick={(p) => setSelectedProduct(p)}
-                  />
                 </motion.div>
               ))}
             </motion.div>

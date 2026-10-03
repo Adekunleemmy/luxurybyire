@@ -24,47 +24,101 @@ export const createOrder = async (data) => {
   } = data;
 
   // Calculate subtotal from items
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const total = subtotal + parseFloat(deliveryFee);
+  const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity) || 1), 0);
+  const total = subtotal + (parseFloat(deliveryFee) || 0);
+
+  // Validate productIds to ensure foreign key integrity
+  const productIds = items.map((i) => i.productId).filter(Boolean);
+  let validProductIds = new Set();
+  try {
+    if (productIds.length > 0) {
+      const existing = await prisma.product.findMany({
+        where: { id: { in: productIds } },
+        select: { id: true },
+      });
+      validProductIds = new Set(existing.map((p) => p.id));
+    }
+  } catch (err) {
+    console.error('Failed to verify product IDs:', err);
+  }
 
   // Generate unique reference
   let reference;
   let isUnique = false;
-  while (!isUnique) {
+  let attempts = 0;
+  while (!isUnique && attempts < 10) {
+    attempts++;
     reference = generateOrderReference();
     const existing = await prisma.order.findUnique({ where: { reference } });
     if (!existing) isUnique = true;
   }
+  if (!reference) {
+    reference = `LBI-${Date.now()}`;
+  }
 
-  const order = await prisma.order.create({
-    data: {
-      reference,
-      customerName,
-      customerPhone,
-      deliveryAddress: deliveryAddress?.trim() || null,
-      deliveryLocation,
-      deliveryFee: parseFloat(deliveryFee),
-      subtotal,
-      total,
-      note: note || null,
-      items: {
-        create: items.map((item) => ({
-          productName: item.productName,
-          brand: item.brand,
-          size: item.size || null,
-          colour: item.colour || null,
-          quantity: parseInt(item.quantity),
-          price: parseFloat(item.price),
-          productId: item.productId || null,
-        })),
+  const orderItemsData = items.map((item) => ({
+    productName: item.productName || 'Product',
+    brand: item.brand || 'Luxurybyire',
+    size: item.size || null,
+    colour: item.colour || null,
+    quantity: parseInt(item.quantity) || 1,
+    price: parseFloat(item.price) || 0,
+    productId: validProductIds.has(item.productId) ? item.productId : null,
+  }));
+
+  try {
+    const order = await prisma.order.create({
+      data: {
+        reference,
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        deliveryAddress: deliveryAddress?.trim() || null,
+        deliveryLocation,
+        deliveryFee: parseFloat(deliveryFee) || 0,
+        subtotal,
+        total,
+        note: note?.trim() || null,
+        items: {
+          create: orderItemsData,
+        },
       },
-    },
-    include: {
-      items: true,
-    },
-  });
+      include: {
+        items: true,
+      },
+    });
 
-  return order;
+    return order;
+  } catch (err) {
+    // If column deliveryAddress does not exist in production database yet (P2022)
+    if (err.code === 'P2022') {
+      console.warn('deliveryAddress column missing, attempting auto-migration...');
+      try {
+        await prisma.$executeRawUnsafe(`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "deliveryAddress" TEXT;`);
+        return await prisma.order.create({
+          data: {
+            reference,
+            customerName: customerName.trim(),
+            customerPhone: customerPhone.trim(),
+            deliveryAddress: deliveryAddress?.trim() || null,
+            deliveryLocation,
+            deliveryFee: parseFloat(deliveryFee) || 0,
+            subtotal,
+            total,
+            note: note?.trim() || null,
+            items: {
+              create: orderItemsData,
+            },
+          },
+          include: {
+            items: true,
+          },
+        });
+      } catch (retryErr) {
+        console.error('Retry with added column failed:', retryErr);
+      }
+    }
+    throw err;
+  }
 };
 
 /**
